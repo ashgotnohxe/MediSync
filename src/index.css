@@ -1,0 +1,414 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --text: #1a1a2e;
+  --text-light: #5f6c7b;
+  --bg: #f5f7fa; /* Very light, almost white background */
+  --card-bg: #ffffff;
+  --border-color: #212134; /* Dark charcoal for borders */
+  
+  --primary: #38bdf8; /* Bright sky blue accent */
+  --primary-hover: #0284c7;
+  --secondary: #e0f2fe; /* Light blue accent */
+  
+  --badge-green: #d1fae5;
+  --badge-green-text: #065f46;
+  --badge-red: #fee2e2;
+  --badge-red-text: #991b1b;
+  --badge-blue: #e0f2fe;
+  --badge-blue-text: #0369a1;
+  --badge-sky: #e0f2fe; /* specific sky blue for badges */
+  --badge-sky-text: #0369a1;
+
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px; /* Space for bottom navbar */
+}
+
+.page-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem 0;
+  color: var(--border-color);
+}
+
+.subtitle {
+  color: var(--text-light);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+/* Navbar (Moved to bottom to match screenshot) */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 2rem;
+  background-color: var(--card-bg);
+  border-top: 3px solid var(--border-color);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.logo-main {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.logo-sub {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px; /* Pill shape */
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link.active {
+  background-color: var(--card-bg);
+  border: 3px solid var(--border-color);
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.nav-link:hover:not(.active) {
+  background-color: #f1f5f9;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logout-btn {
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--border-color);
+  background-color: white;
+}
+
+/* Floating SOS Button */
+.sos-btn {
+  position: fixed;
+  bottom: 90px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  border: 4px solid var(--border-color);
+  box-shadow: 4px 4px 0px var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 99;
+}
+
+/* Common Card Style (Thicker borders, rounder corners) */
+.card {
+  background-color: var(--card-bg);
+  border: 4px solid var(--border-color);
+  border-radius: 24px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 5px 5px 0px var(--border-color);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Header Welcome Card (Pink one in screenshot) */
+.header-card {
+  background-color: var(--primary);
+  color: white;
+  border: 4px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 5px 5px 0px var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.header-card p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.header-card h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+}
+
+/* Card layout specifics */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.card-header h3 {
+  font-family: var(--font-heading);
+  margin: 0 0 0.25rem 0;
+  font-size: 1.15rem;
+}
+
+.card-body p {
+  margin: 0.25rem 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* Search */
+.search-container {
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-family: var(--font-body);
+  border: 4px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: 4px 4px 0px var(--border-color);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+}
+
+/* Badges (Light background, no border, pill shape) */
+.badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--badge-sky);
+  color: var(--badge-sky-text);
+  border: none; /* Removed thick border for badges based on screenshot */
+}
+
+.tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.red-badge {
+  background-color: var(--badge-red);
+  color: var(--badge-red-text);
+}
+
+.blue-badge {
+  background-color: var(--badge-blue);
+  color: var(--badge-blue-text);
+}
+
+.sky-badge {
+  background-color: var(--badge-sky);
+  color: var(--badge-sky-text);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 4px dashed var(--border-color);
+  border-radius: 24px;
+  font-size: 1.1rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Doctor Directory Specifics */
+.doctor-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  background-color: var(--secondary);
+  border: 3px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.specialty-text {
+  color: var(--text-light);
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.rating {
+  font-weight: 600;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+}
+
+/* Beds Specifics */
+.status {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.status-green { color: #059669; }
+.status-red { color: #dc2626; }
+
+.progress-container {
+  height: 12px;
+  background-color: #f1f5f9;
+  border: 3px solid var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.bg-green { background-color: #10b981; }
+.bg-red { background-color: #ef4444; }
+
+.bed-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background-color: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 16px;
+  border: 3px solid var(--border-color);
+}
+
+.control-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 3px solid var(--border-color);
+  background-color: var(--card-bg);
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.control-btn:hover:not(:disabled) {
+  background-color: var(--badge-sky);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--border-color);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.control-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.big-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: var(--border-color);
+}
+
+.small-text {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
