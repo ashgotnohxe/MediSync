@@ -1,5 +1,5 @@
 export default function AppNavbar({ username, activePage, onNavigate, subtitle }) {
-  const links = ["History", "Appointments", "Medicines" , "Emergency"];
+  const links = ["History", "Appointments", "Medicines" ,"Emergency"];
   return (
     <nav className="app-nav">
       <div className="home-logo">

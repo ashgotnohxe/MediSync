@@ -4,11 +4,12 @@ import AppNavbar from "./AppNavbar.jsx";
 import AppointmentsPage from "./AppointmentsPage.jsx";
 import MedicinesPage from "./MedicinesPage.jsx";
 import HistoryPage from "./HistoryPage.jsx";
+import EmergencyPage from "./EmergencyPage.jsx";
 
 
 export default function App() {
   const [page, setPage] = useState("Home"); 
-  const [username] = useState(""); 
+  const [username] = useState("neha"); 
   const [displayName] = useState(""); 
 
   function goToApp() {
