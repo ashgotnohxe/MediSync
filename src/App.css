@@ -1,0 +1,153 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f2f6fa; }
+
+
+/* ---------- NAVBAR (shared across app pages) ---------- */
+.app-nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 32px; background: #fff; border-bottom: 1px solid #eee; }
+.app-nav-links { display: flex; gap: 28px; }
+.app-nav-link { color: #374151; font-weight: 500; cursor: pointer; text-decoration: none; }
+.app-nav-link.active { color: #ec4899; background: #fce7f3; padding: 6px 14px; border-radius: 8px; }
+.app-nav-right { display: flex; align-items: center; gap: 14px; }
+.app-nav-user { color: #9ca3af; }
+.app-nav-logout { border: 1px solid #d1d5db; background: #fff; padding: 6px 14px; border-radius: 8px; cursor: pointer; }
+
+/* ---------- APPOINTMENTS PAGE ---------- */
+.appt-page { padding: 24px; max-width: 1000px; margin: 0 auto; }
+.appt-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+.appt-doctors { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.appt-doc-btn { min-width: 80px; padding: 12px; border-radius: 12px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; }
+.appt-doc-btn.selected { border-color: #f472b6; background: #fdf2f8; color: #db2777; }
+
+.appt-slot-box { border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin-top: 16px; background: #fff; }
+.appt-slot-label { color: #9ca3af; font-size: 13px; margin-bottom: 12px; }
+.appt-slots { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.appt-slot-btn { padding: 8px 16px; border-radius: 10px; font-size: 13px; border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer; }
+.appt-slot-btn.selected { background: #ec4899; color: #fff; border-color: #ec4899; }
+.appt-slot-btn.taken { background: #f3f4f6; color: #d1d5db; cursor: not-allowed; }
+
+.appt-confirm-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; background: #e5e7eb; color: #9ca3af; }
+.appt-confirm-btn.enabled { background: #ec4899; color: #fff; }
+.appt-error { color: #db2777; font-size: 13px; margin-bottom: 8px; }
+
+.appt-section-title { font-weight: 600; margin-top: 32px; margin-bottom: 8px; }
+.appt-empty { color: #9ca3af; font-size: 14px; }
+.appt-success { color: #16a34a; font-size: 13px; font-weight: 500; }
+
+.appt-existing-box {
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  border: 1px solid #fbcfe8;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.appt-existing-info { display: flex; align-items: center; gap: 12px; }
+.appt-existing-icon { font-size: 22px; }
+.appt-existing-title { font-size: 14px; font-weight: 600; color: #831843; }
+.appt-existing-slot { font-size: 13px; color: #be185d; margin-top: 2px; }
+
+.appt-cancel-btn {
+  background: #ec4899;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.appt-cancel-btn:hover { background: #db2777; }
+
+.appt-list { display: flex; flex-direction: column; gap: 10px; }
+.appt-row {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.appt-row-info { display: flex; flex-direction: column; }
+.appt-row-doc { font-weight: 600; font-size: 14px; color: #111827; }
+.appt-row-slot { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+
+.appt-cancel-btn-sm {
+  background: #ec4899;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+.appt-cancel-btn-sm:hover { background: #db2777; }
+
+/* ---------- MEDICINES PAGE ---------- */
+.med-page { padding: 24px; max-width: 1000px; margin: 0 auto 80px; }
+.med-title { font-size: 20px; font-weight: 700; }
+.med-subtitle { color: #9ca3af; font-size: 13px; margin-bottom: 16px; }
+.med-search-row { display: flex; gap: 10px; margin-bottom: 24px; }
+.med-search-input { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 16px; font-size: 14px; }
+.med-search-btn { background: #ec4899; color: #fff; border: none; padding: 0 20px; border-radius: 10px; font-weight: 500; cursor: pointer; }
+
+.med-section-title { font-weight: 600; margin-bottom: 10px; }
+.med-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.med-card { border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px; background: #fff; }
+.med-tag { font-size: 11px; color: #3b82f6; background: #eff6ff; padding: 2px 8px; border-radius: 999px; }
+.med-name { font-weight: 600; font-size: 14px; margin-top: 8px; }
+.med-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.med-price { font-weight: 600; }
+.med-add-btn { background: #ec4899; color: #fff; border: none; font-size: 12px; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.med-qty-row { display: flex; align-items: center; gap: 10px; }
+.med-qty-btn { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; }
+
+.med-checkout-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e5e7eb; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+.med-checkout-btn { background: #ec4899; color: #fff; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+.med-orders { margin-top: 40px; }
+.med-order-row { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.countdown-active { color: #db2777; font-weight: 500; }
+.countdown-done { color: #16a34a; font-weight: 500; }
+
+@media (max-width: 700px) {
+  .med-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- PAYMENT MODAL ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal-box { background: #fff; border-radius: 14px; padding: 24px; width: 320px; }
+.modal-title { font-weight: 700; margin-bottom: 4px; }
+.modal-amount { color: #9ca3af; font-size: 13px; margin-bottom: 16px; }
+.modal-pay-btn { width: 100%; background: #ec4899; color: #fff; border: none; padding: 10px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+.modal-pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.modal-cancel-btn { width: 100%; border: 1px solid #e5e7eb; background: #fff; padding: 10px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+
+/* ---------- HISTORY PAGE ---------- */
+.hist-page { padding: 24px; max-width: 1000px; margin: 0 auto; }
+
+.hist-banner { background: #ec4899; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; color: #fff; }
+.hist-banner-sub { font-size: 13px; opacity: 0.9; }
+.hist-banner-name { font-size: 22px; font-weight: 700; margin-top: 2px; }
+
+.hist-section-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+
+.hist-empty-box { border: 1px solid #e5e7eb; border-radius: 14px; padding: 40px; text-align: center; color: #9ca3af; font-size: 14px; background: #fff; }
+
+.hist-list { display: flex; flex-direction: column; gap: 10px; }
+.hist-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 18px; background: #fff; display: flex; justify-content: space-between; align-items: center; }
+.hist-item-title { font-weight: 600; font-size: 14px; }
+.hist-item-subtitle { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+.hist-item-time { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+
+.hist-item-appointment { border-left: 3px solid #ec4899; }
+.hist-item-medicine { border-left: 3px solid #22c55e; }
+.hist-item-sos { border-left: 3px solid #ef4444; }
