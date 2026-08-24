@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import AppNavbar from "./AppNavbar.jsx";
 import AppointmentsPage from "./AppointmentsPage.jsx";
@@ -6,18 +6,48 @@ import MedicinesPage from "./MedicinesPage.jsx";
 import HistoryPage from "./HistoryPage.jsx";
 import EmergencyPage from "./EmergencyPage.jsx";
 
+// URL path se page nikaalne ka helper
+function getPageFromPath(path) {
+  const map = {
+    "/history": "History",
+    "/appointments": "Appointments",
+    "/medicines": "Medicines",
+    "/emergency": "Emergency",
+    "/doctors": "Doctors",
+  };
+  return map[path] || "History"; // default = History (patient page)
+}
 
 export default function App() {
-  const [page, setPage] = useState("Home"); 
-  const [username] = useState("neha"); 
-  const [displayName] = useState(""); 
+  const [page, setPage] = useState(() => getPageFromPath(window.location.pathname));
+  const [username] = useState("neha");
+  const [displayName] = useState("");
 
-  function goToApp() {
-    setPage("History"); 
-  }
+  // browser ke back/forward button ke liye
+  useEffect(() => {
+    const onPopState = () => setPage(getPageFromPath(window.location.pathname));
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
-  if (page === "Home") {
-    return <HomePage onGetStarted={goToApp} />;
+  // agar root pe koi aaye to seedha /history pe le jao
+  useEffect(() => {
+    if (window.location.pathname === "/") {
+      window.history.replaceState({}, "", "/history");
+    }
+  }, []);
+
+  function navigate(pageName) {
+    const pathMap = {
+      History: "/history",
+      Appointments: "/appointments",
+      Medicines: "/medicines",
+      Emergency: "/emergency",
+      Doctors: "/doctors",
+    };
+    const path = pathMap[pageName] || "/history";
+    window.history.pushState({}, "", path); // URL change karo
+    setPage(pageName); // component render karo
   }
 
   return (
@@ -25,8 +55,8 @@ export default function App() {
       <AppNavbar
         username={displayName}
         activePage={page}
-        onNavigate={setPage}
-        subtitle={page === "History" ? "My Health History" : page}
+        onNavigate={navigate}
+        subtitle={page}
       />
 
       {page === "History" && (

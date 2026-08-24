@@ -1,5 +1,5 @@
 export default function AppNavbar({ username, activePage, onNavigate, subtitle }) {
-  const links = ["History", "Appointments", "Medicines" ,"Emergency"];
+  const links = ["History", "Appointments", "Medicines", "Emergency"];
   return (
     <nav className="app-nav">
       <div className="home-logo">
@@ -22,7 +22,7 @@ export default function AppNavbar({ username, activePage, onNavigate, subtitle }
       </div>
       <div className="app-nav-right">
         <span className="app-nav-user">{username}</span>
-        <button className="app-nav-logout">Logout</button>
+       
       </div>
     </nav>
   );
