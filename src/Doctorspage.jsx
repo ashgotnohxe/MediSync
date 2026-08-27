@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import PaymentModal from "./PaymentModal";
 
 // ---------- specialties for filter row ----------
 const specialties = [
@@ -112,6 +111,30 @@ function formatTime(totalSeconds) {
   return m + ":" + s;
 }
 
+// simple inline payment modal (kept in this file so the bundle stays self-contained)
+function PaymentModal({ title, amount, onClose, onSuccess }) {
+  const [processing, setProcessing] = useState(false);
+  function pay() {
+    setProcessing(true);
+    setTimeout(() => {
+      setProcessing(false);
+      onSuccess();
+    }, 1200);
+  }
+  return (
+    <div className="modal-overlay">
+      <div className="modal-box">
+        <h3 className="modal-title">{title}</h3>
+        <p className="modal-amount">Amount: Rs {amount}</p>
+        <button onClick={pay} disabled={processing} className="modal-pay-btn">
+          {processing ? "Processing..." : `Pay Rs ${amount}`}
+        </button>
+        <button onClick={onClose} className="modal-cancel-btn">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 export default function DoctorsPage({ username }) {
   const [filter, setFilter] = useState("All");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -193,7 +216,6 @@ export default function DoctorsPage({ username }) {
 
   function skipMedicine() {
     saveConsult(false);
-    setStep("");
     closeCall();
   }
 
@@ -356,7 +378,7 @@ export default function DoctorsPage({ username }) {
         ))}
       </div>
 
-      <div className="med-grid doc-grid">
+      <div className="med-grid">
         {filteredDoctors.map((d) => (
           <div key={d.id} className="med-card">
             <span className="med-tag">{d.specialty}</span>

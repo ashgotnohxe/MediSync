@@ -1,5 +1,5 @@
-export default function AppNavbar({ username, activePage, onNavigate, subtitle }) {
-  const links = ["History", "Appointments", "Doctors", "Medicines", "Emergency"];
+export default function NavBar({ username, activePage, onNavigate, onLogout }) {
+  const links = ["History", "Doctors"];
 
   return (
     <nav className="app-nav">
@@ -9,10 +9,7 @@ export default function AppNavbar({ username, activePage, onNavigate, subtitle }
         </button>
         <div className="home-logo">
           <div className="home-logo-icon">+</div>
-          <div>
-            <div className="home-logo-text">MediSync</div>
-            <div style={{ fontSize: 11, color: "#9ca3af" }}>{subtitle}</div>
-          </div>
+          <div className="home-logo-text">MediSync</div>
         </div>
       </div>
 
@@ -30,6 +27,9 @@ export default function AppNavbar({ username, activePage, onNavigate, subtitle }
 
       <div className="app-nav-right">
         <span className="app-nav-user">{username}</span>
+        <button className="app-nav-logout" onClick={onLogout}>
+          Logout
+        </button>
       </div>
     </nav>
   );
