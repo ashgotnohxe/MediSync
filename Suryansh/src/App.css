@@ -1800,3 +1800,17 @@ body {
   font-size: 13px;
   cursor: pointer;
 }
+
+
+.app-nav-link { text-decoration: none; }
+
+.med-filter-select {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 14px;
+  border: 2.5px solid #0f172a;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+}

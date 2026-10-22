@@ -52,6 +52,14 @@ export default function MedicinesPage({ username }) {
   const [showPay, setShowPay] = useState(false);
   const [orders, setOrders] = useState([]);
 
+/// ==== new add 
+  const [search, setSearch] = useState("");      // naam se search
+const [category, setCategory] = useState("All"); // category filter
+const [sort, setSort] = useState("none");      // price sort
+
+
+
+/// new add == 
   useEffect(() => {
     loadOrders();
   }, [username]);
@@ -109,6 +117,26 @@ export default function MedicinesPage({ username }) {
     setShowPay(false);
   }
 
+
+// --- new add  === 
+
+  // Category dropdown ke options (MEDICINES se apne aap bante hain)
+const categories = ["All", ...new Set(MEDICINES.map((m) => m.category))];
+
+// Step 1: naam aur category se filter
+let list = MEDICINES.filter(
+  (m) =>
+    m.name.toLowerCase().includes(search.toLowerCase()) &&
+    (category === "All" || m.category === category)
+);
+
+// Step 2: price se sort
+if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
+if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
+
+
+// --- new add  === 
+
   return (
     <div className="med-page">
       <h2 className="med-title">Medicine Store & Fast Pharmacy</h2>
@@ -146,7 +174,7 @@ export default function MedicinesPage({ username }) {
         </div>
       )}
 
-      <h3 className="med-section-title">All Available Medicines ({MEDICINES.length})</h3>
+      {/* <h3 className="med-section-title">All Available Medicines ({MEDICINES.length})</h3>
       <div className="med-grid">
         {MEDICINES.map((m) => (
           <MedCard
@@ -157,7 +185,57 @@ export default function MedicinesPage({ username }) {
             onRemove={removeFromCart}
           />
         ))}
-      </div>
+      </div> */}
+
+
+      {/* new add ======= */}
+
+      <h3 className="med-section-title">All Available Medicines ({list.length})</h3>
+
+<div className="med-search-row">
+  <input
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Search by name..."
+    className="med-search-input"
+  />
+
+  <select
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="med-filter-select"
+  >
+    {categories.map((c) => (
+      <option key={c} value={c}>{c}</option>
+    ))}
+  </select>
+
+  <select
+    value={sort}
+    onChange={(e) => setSort(e.target.value)}
+    className="med-filter-select"
+  >
+    <option value="none">Sort: default</option>
+    <option value="low">Price: low to high</option>
+    <option value="high">Price: high to low</option>
+  </select>
+</div>
+
+{list.length === 0 && <p style={{ color: "#64748b" }}>No medicines found.</p>}
+
+<div className="med-grid">
+  {list.map((m) => (
+    <MedCard
+      key={m.id}
+      med={m}
+      qty={cart[m.id] || 0}
+      onAdd={addToCart}
+      onRemove={removeFromCart}
+    />
+  ))}
+</div>
+
+{/* // --- new add ----- // */}
 
       {total > 0 && (
         <div className="med-cart-bar">
