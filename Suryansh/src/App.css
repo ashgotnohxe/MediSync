@@ -1814,3 +1814,56 @@ body {
   color: #0f172a;
   cursor: pointer;
 }
+
+.emg3-controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 18px; }
+.emg3-search { flex: 1; min-width: 200px; }
+.emg3-input { font: inherit; width: 100%; padding: 10px 12px; border: 2.5px solid #0f172a; border-radius: 12px; background: #fff; color: #0f172a; box-sizing: border-box; }
+.emg3-select { font: inherit; font-weight: 600; padding: 10px 12px; border: 2.5px solid #0f172a; border-radius: 12px; background: #fff; color: #0f172a; }
+.emg3-input-error { border-color: #ef4444; }
+.emg3-two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.emg3-card { background: #fff; border: 3px solid #0f172a; border-radius: 20px; box-shadow: 5px 5px 0 #0f172a; padding: 18px; }
+.emg3-card h4 { margin: 0 0 12px; font-size: 18px; }
+.emg3-form { display: grid; gap: 14px; }
+.emg3-field { display: grid; gap: 6px; }
+.emg3-field label { font-weight: 700; }
+.emg3-error-text { color: #b91c1c; font-size: 13px; font-weight: 600; margin: 0; }
+.emg3-btn { font: inherit; font-weight: 700; cursor: pointer; border: 2.5px solid #0f172a; border-radius: 12px; background: #0284c7; color: #fff; padding: 9px 16px; box-shadow: 3px 3px 0 #0f172a; }
+.emg3-btn-red { background: #ef4444; padding: 4px 12px; }
+.emg3-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; }
+.emg3-row:last-child { border-bottom: none; }
+.emg3-row small { display: block; color: #64748b; }
+.emg3-muted { color: #64748b; }
+.emg3-toast { position: fixed; right: 16px; bottom: 16px; z-index: 1000; background: #bbf7d0; color: #0f172a; border: 2.5px solid #0f172a; border-radius: 12px; padding: 12px 18px; font-weight: 700; box-shadow: 3px 3px 0 #0f172a; }
+.emg3-toast.bad { background: #fecaca; }
+@media (max-width: 760px) { .emg3-two { grid-template-columns: 1fr; } }
+
+
+
+
+.med-cart-panel {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.med-cart-item strong {
+  color: #0f172a;
+}
+
+.med-cart-panel .med-checkout-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  background: #0f172a;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.med-cart-panel .med-checkout-btn:hover {
+  opacity: 0.9;
+}
