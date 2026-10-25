@@ -11,6 +11,8 @@ export default function Auth({ onLogin, onBack }) {
   const [bloodGroup, setBloodGroup] = useState("O+");
   const [error, setError] = useState("");
 
+
+
   async function handleSubmit() {
     setError("");
 

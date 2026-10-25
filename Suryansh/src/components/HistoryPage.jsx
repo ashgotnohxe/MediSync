@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export default function HistoryPage({ username, displayName }) {
+  useDocumentTitle("Patient Dashboard & History");
   const [appts, setAppts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [sos, setSos] = useState([]);
