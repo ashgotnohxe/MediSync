@@ -1,6 +1,10 @@
+
 import { useState, useEffect } from "react";
-import { loadData, HOSPITALS_SEED } from "../mock-storage";
-import "../emergency.css";
+import { Link } from "react-router-dom";
+import { loadData, HOSPITALS_SEED } from "./mock-storage";
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
+import HospitalBulletin from "./components/common/HospitalBulletin";
+import "./App.css";
 
 // Hotline numbers
 const CONTACTS = [
@@ -30,6 +34,9 @@ function InputField({ label, name, value, onChange, error, placeholder }) {
 }
 
 export default function EmergencyPage({ username }) {
+  // Concept: Custom Hook - updates page title in browser tab
+  useDocumentTitle("Emergency & Hospital Beds");
+
   // ----- Hospital beds ke states -----
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -205,6 +212,24 @@ export default function EmergencyPage({ username }) {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
+                <div style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end" }}>
+                  <Link
+                    to={`/emergency/${h.id || 1}`}
+                    style={{
+                      fontSize: "12px",
+                      color: "#0284c7",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      background: "#f0f9ff",
+                      padding: "4px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid #bae6fd"
+                    }}
+                    title="Dynamic Route (:id) with useParams"
+                  >
+                    View Bed Status →
+                  </Link>
+                </div>
               </div>
             );
           })}
@@ -272,6 +297,9 @@ export default function EmergencyPage({ username }) {
           </a>
         ))}
       </div>
+
+      {/* VIVA TOPIC: API Handling with fetch() and useEffect */}
+      <HospitalBulletin />
 
       {/* Chhota message (toast) */}
       {message.text !== "" && (
