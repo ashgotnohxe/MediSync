@@ -1,303 +1,3 @@
-// import { useState, useEffect } from "react";
-// import PaymentModal from "./PaymentModal";
-// import DeliveryCountdown from "./DeliveryCountdown";
-
-// const MEDICINES = [
-//   { id: 1, name: "Paracetamol 500mg", price: 25, category: "Fever", tags: ["fever", "pain", "headache"] },
-//   { id: 2, name: "ORS Electrolyte Sachets", price: 20, category: "Dehydration", tags: ["dehydration", "diarrhea", "vomit", "weakness"] },
-//   { id: 3, name: "Cetirizine 10mg", price: 30, category: "Allergy", tags: ["allergy", "itching", "cold", "sneeze"] },
-//   { id: 4, name: "Antiseptic Spray", price: 85, category: "First Aid", tags: ["cut", "wound", "injury", "blood"] },
-//   { id: 5, name: "Cough Syrup Herbal", price: 65, category: "Cold & Cough", tags: ["cough", "cold", "throat", "mucus"] },
-//   { id: 6, name: "Digital Thermometer", price: 150, category: "First Aid", tags: ["fever", "temperature", "check"] },
-//   { id: 7, name: "Ibuprofen 400mg", price: 35, category: "Pain Relief", tags: ["pain", "fever", "body ache", "joint"] },
-//   { id: 8, name: "Antacid Tablets", price: 40, category: "Digestion", tags: ["acidity", "stomach ache", "gas", "heartburn"] },
-//   { id: 9, name: "Multivitamin Immunity", price: 120, category: "Vitamins", tags: ["weakness", "fatigue", "energy"] },
-//   { id: 10, name: "Vitamin C Chewable", price: 90, category: "Vitamins", tags: ["immunity", "cold", "skin"] },
-//   { id: 11, name: "Band-Aid Pack (10x)", price: 45, category: "First Aid", tags: ["cut", "wound", "scrape"] },
-//   { id: 12, name: "Crepe Bandage", price: 55, category: "First Aid", tags: ["sprain", "injury", "swelling"] },
-// ];
-
-// function MedCard({ med, qty, onAdd, onRemove }) {
-//   return (
-//     <div className="med-card">
-//       <div className="med-card-cat">{med.category}</div>
-//       <div className="med-card-name">{med.name}</div>
-//       <div className="med-card-price">₹{med.price}</div>
-
-//       <div className="med-card-action">
-//         {qty === 0 ? (
-//           <button onClick={() => onAdd(med.id)} className="med-add-btn">
-//             + Add
-//           </button>
-//         ) : (
-//           <div className="med-qty-row">
-//             <button onClick={() => onRemove(med.id)} className="med-qty-btn">
-//               −
-//             </button>
-//             <span className="med-qty-val">{qty}</span>
-//             <button onClick={() => onAdd(med.id)} className="med-qty-btn">
-//               +
-//             </button>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default function MedicinesPage({ username }) {
-//   const [symptom, setSymptom] = useState("");
-//   const [suggested, setSuggested] = useState([]);
-//   const [cart, setCart] = useState({});
-//   const [showPay, setShowPay] = useState(false);
-//   const [orders, setOrders] = useState([]);
-
-// /// ==== new add 
-//   const [search, setSearch] = useState("");      // naam se search
-// const [category, setCategory] = useState("All"); // category filter
-// const [sort, setSort] = useState("none");      // price sort
-
-
-
-// /// new add == 
-//   useEffect(() => {
-//     loadOrders();
-//   }, [username]);
-
-//   function loadOrders() {
-//     try {
-//       const o = localStorage.getItem(`medorders_${username}`);
-//       setOrders(o ? JSON.parse(o) : []);
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   }
-
-//   function suggest() {
-//     const q = symptom.trim().toLowerCase();
-//     if (!q) {
-//       setSuggested([]);
-//       return;
-//     }
-//     setSuggested(
-//       MEDICINES.filter((m) =>
-//         m.tags.some((t) => q.includes(t) || t.includes(q))
-//       )
-//     );
-//   }
-
-//   function addToCart(id) {
-//     setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
-//   }
-
-//   function removeFromCart(id) {
-//     setCart((c) => {
-//       const next = { ...c };
-//       if (next[id] > 1) next[id] -= 1;
-//       else delete next[id];
-//       return next;
-//     });
-//   }
-
-//   const total = Object.entries(cart).reduce((sum, [id, qty]) => {
-//     const med = MEDICINES.find((m) => m.id === Number(id));
-//     return sum + (med ? med.price * qty : 0);
-//   }, 0);
-
-//   function onPaySuccess() {
-//     const items = Object.entries(cart).map(([id, qty]) => {
-//       const med = MEDICINES.find((m) => m.id === Number(id));
-//       return { id: med.id, name: med.name, price: med.price, qty };
-//     });
-//     const order = { items, total, placedAt: Date.now() };
-//     const newOrders = [order, ...orders];
-//     localStorage.setItem(`medorders_${username}`, JSON.stringify(newOrders));
-//     setOrders(newOrders);
-//     setCart({});
-//     setShowPay(false);
-//   }
-
-
-// // --- new add  === 
-
-//   // Category dropdown ke options (MEDICINES se apne aap bante hain)
-// const categories = ["All", ...new Set(MEDICINES.map((m) => m.category))];
-
-// // Step 1: naam aur category se filter
-// let list = MEDICINES.filter(
-//   (m) =>
-//     m.name.toLowerCase().includes(search.toLowerCase()) &&
-//     (category === "All" || m.category === category)
-// );
-
-// // Step 2: price se sort
-// if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
-// if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
-
-
-// // --- new add  === 
-
-//   return (
-//     <div className="med-page">
-//       <h2 className="med-title">Medicine Store & Fast Pharmacy</h2>
-//       <p className="med-subtitle">
-//         Tell us your symptoms for instant recommendations · 🚚 5-minute express home delivery
-//       </p>
-
-//       <div className="med-search-row">
-//         <input
-//           value={symptom}
-//           onChange={(e) => setSymptom(e.target.value)}
-//           onKeyDown={(e) => e.key === "Enter" && suggest()}
-//           placeholder="Type symptoms e.g. fever, headache, cold, stomach pain..."
-//           className="med-search-input"
-//         />
-//         <button onClick={suggest} className="med-search-btn">
-//           Suggest Medicines
-//         </button>
-//       </div>
-
-//       {suggested.length > 0 && (
-//         <div style={{ marginBottom: "28px" }}>
-//           <h3 className="med-section-title">✨ Recommended for Your Symptoms</h3>
-//           <div className="med-grid">
-//             {suggested.map((m) => (
-//               <MedCard
-//                 key={m.id}
-//                 med={m}
-//                 qty={cart[m.id] || 0}
-//                 onAdd={addToCart}
-//                 onRemove={removeFromCart}
-//               />
-//             ))}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* <h3 className="med-section-title">All Available Medicines ({MEDICINES.length})</h3>
-//       <div className="med-grid">
-//         {MEDICINES.map((m) => (
-//           <MedCard
-//             key={m.id}
-//             med={m}
-//             qty={cart[m.id] || 0}
-//             onAdd={addToCart}
-//             onRemove={removeFromCart}
-//           />
-//         ))}
-//       </div> */}
-
-
-//       {/* new add ======= */}
-
-//       <h3 className="med-section-title">All Available Medicines ({list.length})</h3>
-
-// <div className="med-search-row">
-//   <input
-//     value={search}
-//     onChange={(e) => setSearch(e.target.value)}
-//     placeholder="Search by name..."
-//     className="med-search-input"
-//   />
-
-//   <select
-//     value={category}
-//     onChange={(e) => setCategory(e.target.value)}
-//     className="med-filter-select"
-//   >
-//     {categories.map((c) => (
-//       <option key={c} value={c}>{c}</option>
-//     ))}
-//   </select>
-
-//   <select
-//     value={sort}
-//     onChange={(e) => setSort(e.target.value)}
-//     className="med-filter-select"
-//   >
-//     <option value="none">Sort: default</option>
-//     <option value="low">Price: low to high</option>
-//     <option value="high">Price: high to low</option>
-//   </select>
-// </div>
-
-// {list.length === 0 && <p style={{ color: "#64748b" }}>No medicines found.</p>}
-
-// <div className="med-grid">
-//   {list.map((m) => (
-//     <MedCard
-//       key={m.id}
-//       med={m}
-//       qty={cart[m.id] || 0}
-//       onAdd={addToCart}
-//       onRemove={removeFromCart}
-//     />
-//   ))}
-// </div>
-
-// {/* // --- new add ----- // */}
-
-//       {total > 0 && (
-//         <div className="med-cart-bar">
-//           <div>
-//             <div style={{ fontWeight: 700, fontSize: "16px" }}>
-//               Cart Total: ₹{total}
-//             </div>
-//             <div style={{ fontSize: "12px", color: "#64748b" }}>
-//               {Object.values(cart).reduce((a, b) => a + b, 0)} item(s) in cart
-//             </div>
-//           </div>
-//           <button onClick={() => setShowPay(true)} className="med-checkout-btn">
-//             Proceed to Checkout (₹{total}) →
-//           </button>
-//         </div>
-//       )}
-
-//       {orders.length > 0 && (
-//         <div style={{ marginTop: "40px" }}>
-//           <h3 className="med-section-title">📦 Your Recent Orders</h3>
-//           <div className="med-orders-list">
-//             {orders.map((o, i) => (
-//               <div key={i} className="med-order-card">
-//                 <div className="med-order-top">
-//                   <div>
-//                     <div style={{ fontWeight: 700, fontSize: "15px" }}>
-//                       Order #{orders.length - i} · ₹{o.total}
-//                     </div>
-//                     <div style={{ fontSize: "12px", color: "#64748b" }}>
-//                       {o.items?.map((item) => `${item.name} (x${item.qty})`).join(", ")}
-//                     </div>
-//                   </div>
-//                   <DeliveryCountdown placedAt={o.placedAt} />
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       )}
-
-//       {showPay && (
-//         <PaymentModal
-//           title="Medicine Order Checkout"
-//           amount={total}
-//           onClose={() => setShowPay(false)}
-//           onSuccess={onPaySuccess}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
 import { useState, useEffect } from "react";
 import PaymentModal from "./PaymentModal";
 import DeliveryCountdown from "./DeliveryCountdown";
@@ -326,16 +26,30 @@ function MedCard({ med, qty, onAdd, onRemove }) {
 
       <div className="med-card-action">
         {qty === 0 ? (
-          <button onClick={() => onAdd(med.id)} className="med-add-btn">
-            + Add
+          <button
+            type="button"
+            onClick={() => onAdd(med.id)}
+            className="med-add-btn"
+          >
+            + Add to Cart
           </button>
         ) : (
           <div className="med-qty-row">
-            <button onClick={() => onRemove(med.id)} className="med-qty-btn">
+            <button
+              type="button"
+              onClick={() => onRemove(med.id)}
+              className="med-qty-btn"
+              aria-label={`Remove one ${med.name}`}
+            >
               −
             </button>
             <span className="med-qty-val">{qty}</span>
-            <button onClick={() => onAdd(med.id)} className="med-qty-btn">
+            <button
+              type="button"
+              onClick={() => onAdd(med.id)}
+              className="med-qty-btn"
+              aria-label={`Add one ${med.name}`}
+            >
               +
             </button>
           </div>
@@ -348,21 +62,9 @@ function MedCard({ med, qty, onAdd, onRemove }) {
 export default function MedicinesPage({ username }) {
   const [symptom, setSymptom] = useState("");
   const [suggested, setSuggested] = useState([]);
+  const [cart, setCart] = useState({});
   const [showPay, setShowPay] = useState(false);
   const [orders, setOrders] = useState([]);
-
-  // NAYA: cart ab localStorage me save hota hai, isliye dusre page pe jaake wapas aao to bhi bacha rehta hai
-  const [cart, setCart] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`medcart_${username}`);
-      return saved ? JSON.parse(saved) : {};
-    } catch (e) {
-      return {};
-    }
-  });
-  const [showCart, setShowCart] = useState(false); // NAYA: cart popup khula hai ya nahi
-
-  // search, category filter aur price sort
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("none");
@@ -371,107 +73,126 @@ export default function MedicinesPage({ username }) {
     loadOrders();
   }, [username]);
 
-  // NAYA: cart badalte hi save kar do
-  useEffect(() => {
-    try {
-      localStorage.setItem(`medcart_${username}`, JSON.stringify(cart));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [cart, username]);
-
   function loadOrders() {
     try {
-      const o = localStorage.getItem(`medorders_${username}`);
-      setOrders(o ? JSON.parse(o) : []);
+      const saved = localStorage.getItem(`medorders_${username}`);
+      setOrders(saved ? JSON.parse(saved) : []);
     } catch (e) {
-      console.error(e);
+      console.error("Could not load orders:", e);
+      setOrders([]);
     }
   }
 
   function suggest() {
     const q = symptom.trim().toLowerCase();
+
     if (!q) {
       setSuggested([]);
       return;
     }
+
     setSuggested(
       MEDICINES.filter((m) =>
-        m.tags.some((t) => q.includes(t) || t.includes(q))
+        m.tags.some((tag) => q.includes(tag) || tag.includes(q))
       )
     );
   }
 
   function addToCart(id) {
-    setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
+    setCart((current) => ({
+      ...current,
+      [id]: (current[id] || 0) + 1,
+    }));
   }
 
   function removeFromCart(id) {
-    setCart((c) => {
-      const next = { ...c };
-      if (next[id] > 1) next[id] -= 1;
-      else delete next[id];
+    setCart((current) => {
+      const next = { ...current };
+
+      if (next[id] > 1) {
+        next[id] -= 1;
+      } else {
+        delete next[id];
+      }
+
       return next;
     });
   }
 
-  // NAYA: ek item poora hata do (chahe qty kitni bhi ho)
-  function deleteFromCart(id) {
-    setCart((c) => {
-      const next = { ...c };
-      delete next[id];
-      return next;
-    });
-  }
-
-  // NAYA: poora cart khali karo
-  function clearCart() {
-    setCart({});
-  }
-
-  // NAYA: cart ke items ki list (medicine ka data + quantity)
   const cartItems = Object.entries(cart)
-    .map(([id, qty]) => ({ med: MEDICINES.find((m) => m.id === Number(id)), qty: qty }))
-    .filter((item) => item.med);
+    .map(([id, qty]) => {
+      const med = MEDICINES.find((item) => item.id === Number(id));
+      return med ? { ...med, qty } : null;
+    })
+    .filter(Boolean);
 
-  const total = cartItems.reduce((sum, item) => sum + item.med.price * item.qty, 0);
-  const itemCount = cartItems.reduce((sum, item) => sum + item.qty, 0);
-
-  // Category dropdown ke options
-  const categories = ["All", ...new Set(MEDICINES.map((m) => m.category))];
-
-  // Step 1: naam aur category se filter
-  let list = MEDICINES.filter(
-    (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) &&
-      (category === "All" || m.category === category)
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
   );
 
-  // Step 2: price se sort
-  if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
-  if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
 
-  // NAYA: payment hone ke baad (method = UPI / Card / Cash on Delivery)
-  function onPaySuccess(method) {
-    const items = cartItems.map((item) => ({
-      id: item.med.id,
-      name: item.med.name,
-      price: item.med.price,
-      qty: item.qty,
+  function onPaySuccess() {
+    const items = cartItems.map(({ id, name, price, qty }) => ({
+      id,
+      name,
+      price,
+      qty,
     }));
-    const order = { items, total, placedAt: Date.now(), paymentMethod: method };
+
+    const order = {
+      id: Date.now(),
+      items,
+      total,
+      placedAt: Date.now(),
+      status: "Confirmed",
+    };
+
     const newOrders = [order, ...orders];
-    localStorage.setItem(`medorders_${username}`, JSON.stringify(newOrders));
-    setOrders(newOrders);
-    setCart({});
-    setShowPay(false);
+
+    try {
+      localStorage.setItem(
+        `medorders_${username}`,
+        JSON.stringify(newOrders)
+      );
+
+      setOrders(newOrders);
+      setCart({});
+      setShowPay(false);
+    } catch (e) {
+      console.error("Could not save order:", e);
+      alert("Order could not be saved. Please try again.");
+    }
+  }
+
+  const categories = [
+    "All",
+    ...new Set(MEDICINES.map((med) => med.category)),
+  ];
+
+  let list = MEDICINES.filter(
+    (med) =>
+      med.name.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "All" || med.category === category)
+  );
+
+  if (sort === "low") {
+    list = [...list].sort((a, b) => a.price - b.price);
+  } else if (sort === "high") {
+    list = [...list].sort((a, b) => b.price - a.price);
   }
 
   return (
     <div className="med-page">
       <h2 className="med-title">Medicine Store & Fast Pharmacy</h2>
+
       <p className="med-subtitle">
-        Tell us your symptoms for instant recommendations · 🚚 5-minute express home delivery
+        Tell us your symptoms for instant recommendations ·
+        🚚 5-minute express home delivery
       </p>
 
       <div className="med-search-row">
@@ -479,7 +200,7 @@ export default function MedicinesPage({ username }) {
           value={symptom}
           onChange={(e) => setSymptom(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && suggest()}
-          placeholder="Type symptoms e.g. fever, headache, cold, stomach pain..."
+          placeholder="Enter symptoms e.g. fever, headache, cold..."
           className="med-search-input"
         />
         <button onClick={suggest} className="med-search-btn">
@@ -488,14 +209,17 @@ export default function MedicinesPage({ username }) {
       </div>
 
       {suggested.length > 0 && (
-        <div style={{ marginBottom: "28px" }}>
-          <h3 className="med-section-title">✨ Recommended for Your Symptoms</h3>
+        <div style={{ marginBottom: 28 }}>
+          <h3 className="med-section-title">
+            ✨ Recommended for Your Symptoms
+          </h3>
+
           <div className="med-grid">
-            {suggested.map((m) => (
+            {suggested.map((med) => (
               <MedCard
-                key={m.id}
-                med={m}
-                qty={cart[m.id] || 0}
+                key={med.id}
+                med={med}
+                qty={cart[med.id] || 0}
                 onAdd={addToCart}
                 onRemove={removeFromCart}
               />
@@ -504,13 +228,15 @@ export default function MedicinesPage({ username }) {
         </div>
       )}
 
-      <h3 className="med-section-title">All Available Medicines ({list.length})</h3>
+      <h3 className="med-section-title">
+        All Available Medicines ({list.length})
+      </h3>
 
       <div className="med-search-row">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name..."
+          placeholder="Search by medicine name..."
           className="med-search-input"
         />
 
@@ -519,8 +245,10 @@ export default function MedicinesPage({ username }) {
           onChange={(e) => setCategory(e.target.value)}
           className="med-filter-select"
         >
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
           ))}
         </select>
 
@@ -535,123 +263,131 @@ export default function MedicinesPage({ username }) {
         </select>
       </div>
 
-      {list.length === 0 && <p style={{ color: "#64748b" }}>No medicines found.</p>}
+      {list.length === 0 && (
+        <p style={{ color: "#64748b" }}>No medicines found.</p>
+      )}
 
       <div className="med-grid">
-        {list.map((m) => (
+        {list.map((med) => (
           <MedCard
-            key={m.id}
-            med={m}
-            qty={cart[m.id] || 0}
+            key={med.id}
+            med={med}
+            qty={cart[med.id] || 0}
             onAdd={addToCart}
             onRemove={removeFromCart}
           />
         ))}
       </div>
 
-      {/* Neeche wali cart bar: ab "View Cart" dabane pe cart popup khulta hai */}
-      {total > 0 && (
-        <div className="med-cart-bar">
-          <div>
-            <div style={{ fontWeight: 700, fontSize: "16px" }}>
-              Cart Total: ₹{total}
-            </div>
-            <div style={{ fontSize: "12px", color: "#64748b" }}>
-              {itemCount} item(s) in cart
-            </div>
-          </div>
-          <button onClick={() => setShowCart(true)} className="med-checkout-btn">
-            🛒 View Cart →
-          </button>
-        </div>
-      )}
+      {/* Cart */}
+      <div className="med-cart-panel">
+        <h3 className="med-section-title">
+          🛒 Your Cart ({totalItems} items)
+        </h3>
 
-      {orders.length > 0 && (
-        <div style={{ marginTop: "40px" }}>
-          <h3 className="med-section-title">📦 Your Recent Orders</h3>
-          <div className="med-orders-list">
-            {orders.map((o, i) => (
-              <div key={i} className="med-order-card">
-                <div className="med-order-top">
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: "15px" }}>
-                      Order #{orders.length - i} · ₹{o.total}
-                      {o.paymentMethod && ` · ${o.paymentMethod}`}
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#64748b" }}>
-                      {o.items?.map((item) => `${item.name} (x${item.qty})`).join(", ")}
-                    </div>
+        {cartItems.length === 0 ? (
+          <p style={{ color: "#64748b" }}>
+            Your cart is empty. Add medicines to get started.
+          </p>
+        ) : (
+          <>
+            {cartItems.map((item) => (
+              <div
+                key={item.id}
+                className="med-cart-item"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 12,
+                  flexWrap: "wrap",
+                  padding: "12px 0",
+                  borderBottom: "1px solid #e2e8f0",
+                }}
+              >
+                <div>
+                  <strong>{item.name}</strong>
+                  <div style={{ color: "#64748b", fontSize: 13 }}>
+                    ₹{item.price} × {item.qty} = ₹{item.price * item.qty}
                   </div>
-                  <DeliveryCountdown placedAt={o.placedAt} />
+                </div>
+
+                <div className="med-qty-row">
+                  <button
+                    type="button"
+                    className="med-qty-btn"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    −
+                  </button>
+                  <span className="med-qty-val">{item.qty}</span>
+                  <button
+                    type="button"
+                    className="med-qty-btn"
+                    onClick={() => addToCart(item.id)}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
 
-      {/* NAYA: Cart popup */}
-      {showCart && (
-        <div className="modal-overlay" onClick={() => setShowCart(false)}>
-          <div className="modal-box cart-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="modal-title">🛒 Your Cart</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
+                marginTop: 18,
+              }}
+            >
+              <strong style={{ fontSize: 20 }}>
+                Total: ₹{total}
+              </strong>
 
-            {cartItems.length === 0 ? (
-              <p style={{ color: "#64748b" }}>Your cart is empty.</p>
-            ) : (
-              <>
-                {cartItems.map((item) => (
-                  <div key={item.med.id} className="cart-row">
-                    <div style={{ flex: 1 }}>
-                      <div className="cart-row-name">{item.med.name}</div>
-                      <div className="cart-row-sub">₹{item.med.price} each</div>
-                    </div>
-
-                    <div className="cart-qty">
-                      <button className="cart-qty-btn" onClick={() => removeFromCart(item.med.id)}>−</button>
-                      <span>{item.qty}</span>
-                      <button className="cart-qty-btn" onClick={() => addToCart(item.med.id)}>+</button>
-                    </div>
-
-                    <div className="cart-line">₹{item.med.price * item.qty}</div>
-
-                    <button
-                      className="cart-remove"
-                      title="Remove item"
-                      onClick={() => deleteFromCart(item.med.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-
-                <div className="cart-total-row">
-                  <span>Total ({itemCount} items)</span>
-                  <span>₹{total}</span>
-                </div>
-              </>
-            )}
-
-            <div className="cart-actions">
-              <button className="cart-btn" onClick={() => setShowCart(false)}>
-                Continue shopping
-              </button>
-              {cartItems.length > 0 && (
-                <button className="cart-btn cart-btn-danger" onClick={clearCart}>
-                  Clear cart
-                </button>
-              )}
               <button
-                className="cart-btn cart-btn-primary"
-                disabled={cartItems.length === 0}
-                onClick={() => {
-                  setShowCart(false);
-                  setShowPay(true);
-                }}
+                type="button"
+                onClick={() => setShowPay(true)}
+                className="med-checkout-btn"
               >
-                Proceed to Pay (₹{total})
+                Proceed to Payment · ₹{total} →
               </button>
             </div>
+          </>
+        )}
+      </div>
+
+      {orders.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h3 className="med-section-title">
+            📦 Your Recent Orders
+          </h3>
+
+          <div className="med-orders-list">
+            {orders.map((order, index) => (
+              <div key={order.id || index} className="med-order-card">
+                <div className="med-order-top">
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>
+                      Order #{orders.length - index} · ₹{order.total}
+                    </div>
+
+                    <div style={{ fontSize: 12, color: "#64748b" }}>
+                      {order.items
+                        ?.map((item) => `${item.name} (x${item.qty})`)
+                        .join(", ")}
+                    </div>
+
+                    <div style={{ fontSize: 12, marginTop: 4 }}>
+                      Status: {order.status || "Confirmed"}
+                    </div>
+                  </div>
+
+                  <DeliveryCountdown placedAt={order.placedAt} />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -667,3 +403,9 @@ export default function MedicinesPage({ username }) {
     </div>
   );
 }
+
+
+
+
+
+
