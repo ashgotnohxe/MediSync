@@ -1,438 +1,207 @@
-// import { useState, useEffect } from "react";
-// import PaymentModal from "./PaymentModal";
-// import DeliveryCountdown from "./DeliveryCountdown";
-
-// const MEDICINES = [
-//   { id: 1, name: "Paracetamol 500mg", price: 25, category: "Fever", tags: ["fever","pain","headache"] },
-//   { id: 2, name: "ORS Sachets", price: 20, category: "Dehydration", tags: ["dehydration","diarrhea"] },
-//   { id: 3, name: "Cetirizine 10mg", price: 30, category: "Allergy", tags: ["allergy","itching","cold"] },
-//   { id: 4, name: "Antiseptic Spray", price: 85, category: "First Aid", tags: ["cut","wound","injury"] },
-//   { id: 5, name: "Cough Syrup", price: 65, category: "Cold & Cough", tags: ["cough","cold","throat"] },
-//   { id: 6, name: "Digital Thermometer", price: 150, category: "First Aid", tags: ["fever","temperature"] },
-//   { id: 7, name: "Ibuprofen 400mg", price: 35, category: "Pain Relief", tags: ["pain","fever","body ache"] },
-//   { id: 8, name: "Antacid Tablets", price: 40, category: "Digestion", tags: ["acidity","stomach ache"] },
-//   { id: 9, name: "Multivitamin Tablets", price: 120, category: "Vitamins", tags: ["weakness","fatigue"] },
-//   { id: 10, name: "Vitamin C Tablets", price: 90, category: "Vitamins", tags: ["immunity","cold"] },
-//   { id: 11, name: "Band-Aid Pack", price: 45, category: "First Aid", tags: ["cut","wound"] },
-//   { id: 12, name: "Crepe Bandage", price: 55, category: "First Aid", tags: ["sprain","injury"] },
-// ];
-
-// export default function MedicinesPage({ username }) {
-//   const [symptom, setSymptom] = useState("");
-//   const [suggested, setSuggested] = useState([]);
-//   const [cart, setCart] = useState({});
-//   const [showPay, setShowPay] = useState(false);
-//   const [orders, setOrders] = useState([]);
-
-//   useEffect(() => { loadOrders(); }, []);
-
-//   function loadOrders() {
-//     const o = localStorage.getItem(`medorders_${username}`);
-//     setOrders(o ? JSON.parse(o) : []);
-//   }
-
-//   function suggest() {
-//     const q = symptom.trim().toLowerCase();
-//     if (!q) { setSuggested([]); return; }
-//     setSuggested(MEDICINES.filter((m) => m.tags.some((t) => q.includes(t) || t.includes(q))));
-//   }
-
-//   function addToCart(id) {
-//     setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
-//   }
-//   function removeFromCart(id) {
-//     setCart((c) => {
-//       const next = { ...c };
-//       if (next[id] > 1) next[id] -= 1;
-//       else delete next[id];
-//       return next;
-//     });
-//   }
-
-//   const total = Object.entries(cart).reduce((sum, [id, qty]) => {
-//     const med = MEDICINES.find((m) => m.id === Number(id));
-//     return sum + (med ? med.price * qty : 0);
-//   }, 0);
-
-//   function onPaySuccess() {
-//     const items = Object.entries(cart).map(([id, qty]) => {
-//       const med = MEDICINES.find((m) => m.id === Number(id));
-//       return { id: med.id, name: med.name, price: med.price, qty };
-//     });
-//     const order = { items, total, placedAt: Date.now() };
-//     const newOrders = [...orders, order];
-//     localStorage.setItem(`medorders_${username}`, JSON.stringify(newOrders));
-//     setOrders(newOrders);
-//     setCart({});
-//     setShowPay(false);
-//   }
-
-//   return (
-  
-//     <div className="med-page">
-//       <h2 className="med-title">Medicine Store</h2>
-//       <p className="med-subtitle">Tell us your symptoms and we'll suggest medicines · 5 minute home delivery</p>
-
-//       <div className="med-search-row">
-//         <input
-//           value={symptom}
-//           onChange={(e) => setSymptom(e.target.value)}
-//           placeholder="e.g. fever, cough, stomach ache..."
-//           className="med-search-input"
-//         />
-//         <button onClick={suggest} className="med-search-btn">Suggest</button>
-//       </div>
-
-//       {suggested.length > 0 && (
-//         <div>
-//           <h3 className="med-section-title">Suggested for you</h3>
-//           <div className="med-grid">
-//             {suggested.map((m) => (
-//               <MedCard key={m.id} med={m} qty={cart[m.id] || 0} onAdd={addToCart} onRemove={removeFromCart} />
-//             ))}
-//           </div>
-//         </div>
-//       )}
-
-//       <h3 className="med-section-title">All medicines ({MEDICINES.length})</h3>
-//       <div className="med-grid">
-//         {MEDICINES.map((m) => (
-//           <MedCard key={m.id} med={m} qty={cart[m.id] || 0} onAdd={addToCart} onRemove={removeFromCart} />
-//         ))}
-//       </div>
-
-//       {total > 0 && (
-//         <div className="med-checkout-bar">
-//           <span style={{ fontWeight: 600 }}>Total: ₹{total}</span>
-//           <button onClick={() => setShowPay(true)} className="med-checkout-btn">Payment</button>
-//         </div>
-//       )}
-
-//       {showPay && (
-//         <PaymentModal
-//           title="Medicine Order"
-//           amount={total}
-//           onClose={() => setShowPay(false)}
-//           onSuccess={onPaySuccess}
-//         />
-//       )}
-
-//       {orders.length > 0 && (
-//         <div className="med-orders">
-//           <h3 className="med-section-title">Your orders</h3>
-//           {orders.map((o, i) => (
-//             <div key={i} className="med-order-row">
-//               <span>{o.items.length} items · ₹{o.total}</span>
-//               <DeliveryCountdown placedAt={o.placedAt} />
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// function MedCard({ med, qty, onAdd, onRemove }) {
-//   return (
-//     <div className="med-card">
-//       <span className="med-tag">{med.category}</span>
-//       <h4 className="med-name">{med.name}</h4>
-//       <div className="med-bottom-row">
-//         <span className="med-price">₹{med.price}</span>
-//         {qty === 0 ? (
-//           <button onClick={() => onAdd(med.id)} className="med-add-btn">Add</button>
-//         ) : (
-//           <div className="med-qty-row">
-//             <button onClick={() => onRemove(med.id)} className="med-qty-btn">-</button>
-//             <span>{qty}</span>
-//             <button onClick={() => onAdd(med.id)} className="med-qty-btn">+</button>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import { useState, useEffect } from "react";
-import { loadData, HOSPITALS_SEED } from "../mock-storage";
-import "../emergency.css";
+import PaymentModal from "./PaymentModal";
+import DeliveryCountdown from "./DeliveryCountdown";
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
 
-// Hotline numbers
-const CONTACTS = [
-  { label: "Ambulance", number: "108", icon: "🚑" },
-  { label: "Emergency Central", number: "112", icon: "🚨" },
-  { label: "Police Assistance", number: "100", icon: "🚓" },
-  { label: "Fire & Rescue", number: "101", icon: "🚒" },
-  { label: "Women Helpline", number: "1091", icon: "📞" },
+// ==========================================================
+// VIVA TOPIC: Hospital Pharmacy Component
+// - Demonstrates useState, useEffect, props, modal, and simple array filter
+// - NO debounce is used
+// ==========================================================
+
+const MEDICINES = [
+  { id: 1, name: "Paracetamol 500mg", price: 25, category: "Fever", tags: ["fever", "pain", "headache"] },
+  { id: 2, name: "ORS Electrolyte Sachets", price: 20, category: "Dehydration", tags: ["dehydration", "diarrhea"] },
+  { id: 3, name: "Cetirizine 10mg", price: 30, category: "Allergy", tags: ["allergy", "cold", "sneeze"] },
+  { id: 4, name: "Antiseptic Spray", price: 85, category: "First Aid", tags: ["cut", "wound", "injury"] },
+  { id: 5, name: "Cough Syrup Herbal", price: 65, category: "Cold & Cough", tags: ["cough", "cold", "throat"] },
+  { id: 6, name: "Digital Thermometer", price: 150, category: "First Aid", tags: ["fever", "temperature"] },
+  { id: 7, name: "Ibuprofen 400mg", price: 35, category: "Pain Relief", tags: ["pain", "body ache"] },
+  { id: 8, name: "Antacid Tablets", price: 40, category: "Digestion", tags: ["acidity", "gas", "stomach"] },
+  { id: 9, name: "Multivitamin Tablets", price: 120, category: "Vitamins", tags: ["weakness", "energy"] },
+  { id: 10, name: "Band-Aid Pack (10x)", price: 45, category: "First Aid", tags: ["cut", "wound"] }
 ];
 
-// Reusable input: label + box + error (form me baar baar use hota hai)
-function InputField({ label, name, value, onChange, error, placeholder }) {
+export default function MedicinesPage({ username }) {
+  useDocumentTitle("Hospital Pharmacy & Medicines");
+
+  const [symptom, setSymptom] = useState("");
+  const [suggested, setSuggested] = useState([]);
+  const [cart, setCart] = useState({});
+  const [showPay, setShowPay] = useState(false);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [username]);
+
+  function loadOrders() {
+    try {
+      const o = localStorage.getItem(`medorders_${username}`);
+      setOrders(o ? JSON.parse(o) : []);
+    } catch (e) {
+      console.error("Error loading orders:", e);
+    }
+  }
+
+  // Suggestion function using basic JavaScript filter (NO debounce)
+  function suggest() {
+    const q = symptom.trim().toLowerCase();
+    if (!q) {
+      setSuggested([]);
+      return;
+    }
+    const matches = MEDICINES.filter((m) =>
+      m.tags.some((t) => q.includes(t) || t.includes(q))
+    );
+    setSuggested(matches);
+  }
+
+  function addToCart(id) {
+    setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
+  }
+
+  function removeFromCart(id) {
+    setCart((c) => {
+      const next = { ...c };
+      if (next[id] > 1) next[id] -= 1;
+      else delete next[id];
+      return next;
+    });
+  }
+
+  const total = Object.entries(cart).reduce((sum, [id, qty]) => {
+    const med = MEDICINES.find((m) => m.id === Number(id));
+    return sum + (med ? med.price * qty : 0);
+  }, 0);
+
+  function onPaySuccess() {
+    const items = Object.entries(cart).map(([id, qty]) => {
+      const med = MEDICINES.find((m) => m.id === Number(id));
+      return { id: med.id, name: med.name, price: med.price, qty };
+    });
+    const order = { items, total, placedAt: Date.now() };
+    const newOrders = [...orders, order];
+    try {
+      localStorage.setItem(`medorders_${username}`, JSON.stringify(newOrders));
+    } catch (e) {
+      console.error(e);
+    }
+    setOrders(newOrders);
+    setCart({});
+    setShowPay(false);
+  }
+
   return (
-    <div className="emg3-field">
-      <label htmlFor={name}>{label}</label>
-      <input
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={error ? "emg3-input emg3-input-error" : "emg3-input"}
-      />
-      {error && <p className="emg3-error-text">{error}</p>}
+    <div className="med-page" style={{ maxWidth: "800px", margin: "0 auto", padding: "16px" }}>
+      <h2 className="med-title">Hospital Pharmacy & Medicine Store</h2>
+      <p className="med-subtitle">
+        Type symptoms to find recommended medicines · Rapid 5-minute hospital delivery
+      </p>
+
+      {/* Symptom Search Bar */}
+      <div className="med-search-row">
+        <input
+          value={symptom}
+          onChange={(e) => setSymptom(e.target.value)}
+          placeholder="e.g. fever, cough, acidity, headache..."
+          className="med-search-input"
+        />
+        <button onClick={suggest} className="med-search-btn">
+          Suggest
+        </button>
+      </div>
+
+      {suggested.length > 0 && (
+        <div style={{ marginBottom: "24px" }}>
+          <h3 className="med-section-title">Suggested For Your Symptoms</h3>
+          <div className="med-grid">
+            {suggested.map((m) => (
+              <MedCard
+                key={m.id}
+                med={m}
+                qty={cart[m.id] || 0}
+                onAdd={addToCart}
+                onRemove={removeFromCart}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <h3 className="med-section-title">All Hospital Medicines ({MEDICINES.length})</h3>
+      <div className="med-grid">
+        {MEDICINES.map((m) => (
+          <MedCard
+            key={m.id}
+            med={m}
+            qty={cart[m.id] || 0}
+            onAdd={addToCart}
+            onRemove={removeFromCart}
+          />
+        ))}
+      </div>
+
+      {/* Checkout Bar */}
+      {total > 0 && (
+        <div className="med-checkout-bar" style={{ marginTop: "24px" }}>
+          <span style={{ fontWeight: 600 }}>Total Cart Amount: ₹{total}</span>
+          <button onClick={() => setShowPay(true)} className="med-checkout-btn">
+            Proceed to Payment
+          </button>
+        </div>
+      )}
+
+      {/* Payment Modal Demonstration */}
+      {showPay && (
+        <PaymentModal
+          title="Hospital Medicine Order"
+          amount={total}
+          onClose={() => setShowPay(false)}
+          onSuccess={onPaySuccess}
+        />
+      )}
+
+      {/* Orders List */}
+      {orders.length > 0 && (
+        <div className="med-orders" style={{ marginTop: "32px" }}>
+          <h3 className="med-section-title">Your Recent Medicine Orders</h3>
+          {orders.map((o, i) => (
+            <div key={i} className="med-order-row">
+              <span>{o.items ? o.items.length : 1} item(s) · ₹{o.total}</span>
+              <DeliveryCountdown placedAt={o.placedAt} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-export default function EmergencyPage({ username }) {
-  // ----- Hospital beds ke states -----
-  const [hospitals, setHospitals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("none");
-
-  // ----- Emergency contacts ke states -----
-  const [myContacts, setMyContacts] = useState([]);
-  const [form, setForm] = useState({ name: "", phone: "" });
-  const [errors, setErrors] = useState({});
-
-  // ----- Chhota message (toast) -----
-  const [message, setMessage] = useState({ text: "", bad: false });
-
-  const storageKey = "emg_contacts_" + username;
-
-  useEffect(() => {
-    loadBeds();
-    loadMyContacts();
-  }, [username]);
-
-  function showMessage(text, bad) {
-    setMessage({ text: text, bad: !!bad });
-    setTimeout(() => setMessage({ text: "", bad: false }), 2500); // 2.5 sec baad hata do
-  }
-
-  // ---------- Hospital beds ----------
-  async function loadBeds() {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await loadData("beds", true, HOSPITALS_SEED);
-      setHospitals(data);
-    } catch (e) {
-      setError("Could not load hospital beds. Please try again.");
-    }
-    setLoading(false);
-  }
-
-  // Step 1: naam se search
-  let list = hospitals.filter((h) =>
-    h.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Step 2: beds ke hisaab se sort
-  function beds(h) {
-    return h.available !== undefined ? h.available : h.beds !== undefined ? h.beds : 0;
-  }
-  if (sort === "high") list = [...list].sort((a, b) => beds(b) - beds(a));
-  if (sort === "low") list = [...list].sort((a, b) => beds(a) - beds(b));
-
-  // ---------- Emergency contacts ----------
-  function loadMyContacts() {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      setMyContacts(saved ? JSON.parse(saved) : []);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  function saveContacts(newList) {
-    setMyContacts(newList);
-    localStorage.setItem(storageKey, JSON.stringify(newList));
-  }
-
-  // Input me type karte hi form update
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  // Validation: sahi data hai ya nahi
-  function validate() {
-    const newErrors = {};
-    if (form.name.trim().length < 3) {
-      newErrors.name = "Name must be at least 3 letters";
-    }
-    if (!/^[6-9][0-9]{9}$/.test(form.phone)) {
-      newErrors.phone = "Enter a valid 10-digit mobile number";
-    } else if (myContacts.some((c) => c.phone === form.phone)) {
-      newErrors.phone = "This number is already added";
-    }
-    return newErrors;
-  }
-
-  function addContact(e) {
-    e.preventDefault(); // page reload mat karo
-    const newErrors = validate();
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return; // error hai to ruk jao
-
-    const newContact = { id: Date.now(), name: form.name.trim(), phone: form.phone };
-    saveContacts([...myContacts, newContact]);
-    setForm({ name: "", phone: "" });
-    showMessage(newContact.name + " added");
-  }
-
-  function deleteContact(id) {
-    saveContacts(myContacts.filter((c) => c.id !== id));
-    showMessage("Contact removed", true);
-  }
-
+// Child MedCard component demonstrating props
+function MedCard({ med, qty, onAdd, onRemove }) {
   return (
-    <div className="emg-page">
-      <div className="emg-header">
-        <h2 className="emg-heading">Emergency & Live Hospital Beds</h2>
-        <p className="emg-subheading">
-          Emergency hotlines, real-time hospital bed status and your emergency contacts
-        </p>
+    <div className="med-card">
+      <span className="med-tag">{med.category}</span>
+      <h4 className="med-name">{med.name}</h4>
+      <div className="med-bottom-row">
+        <span className="med-price">₹{med.price}</span>
+        {qty === 0 ? (
+          <button onClick={() => onAdd(med.id)} className="med-add-btn">
+            + Add
+          </button>
+        ) : (
+          <div className="med-qty-row">
+            <button onClick={() => onRemove(med.id)} className="med-qty-btn">
+              −
+            </button>
+            <span>{qty}</span>
+            <button onClick={() => onAdd(med.id)} className="med-qty-btn">
+              +
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* ================= 1. Hospital beds ================= */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <h3 className="emg-section-title" style={{ margin: 0 }}>
-          🏥 Connected Hospital Bed Availability (Live)
-        </h3>
-        <button onClick={loadBeds} className="hist-refresh-btn">
-          🔄 Refresh Beds
-        </button>
-      </div>
-
-      <div className="emg3-controls">
-        <input
-          className="emg3-input emg3-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search hospital by name..."
-        />
-        <select className="emg3-select" value={sort} onChange={(e) => setSort(e.target.value)}>
-          <option value="none">Sort: default</option>
-          <option value="high">Most beds first</option>
-          <option value="low">Least beds first</option>
-        </select>
-      </div>
-
-      {loading && <p className="emg3-muted">Loading hospital bed status...</p>}
-
-      {error !== "" && (
-        <div>
-          <p className="emg3-error-text">{error}</p>
-          <button className="emg3-btn" onClick={loadBeds}>Retry</button>
-        </div>
-      )}
-
-      {!loading && error === "" && list.length === 0 && (
-        <p className="emg3-muted">No hospitals found.</p>
-      )}
-
-      {!loading && error === "" && (
-        <div className="emg-hospitals-grid">
-          {list.map((h) => {
-            const available = beds(h);
-            const total = h.total !== undefined ? h.total : h.totalBeds !== undefined ? h.totalBeds : 20;
-            const pct = Math.round((available / total) * 100);
-            const isLow = available <= 3;
-
-            return (
-              <div key={h.id || h.name} className="emg-hospital-card">
-                <div className="emg-hospital-top">
-                  <span className="emg-hospital-name">{h.name}</span>
-                  {h.distance && <span className="emg-hospital-dist">{h.distance}</span>}
-                </div>
-                <div className="emg-beds-row">
-                  <span style={{ fontSize: "13px", color: "#64748b" }}>Emergency Beds Available</span>
-                  <span className={`emg-beds-count ${isLow ? "low" : "ok"}`}>
-                    {available} / {total} free
-                  </span>
-                </div>
-                <div className="emg-bar-track">
-                  <div
-                    className={`emg-bar-fill ${isLow ? "low" : "ok"}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ================= 2. My emergency contacts ================= */}
-      <h3 className="emg-section-title" style={{ marginTop: "36px" }}>
-        👨‍👩‍👧 My Emergency Contacts
-      </h3>
-
-      <div className="emg3-two">
-        {/* Form */}
-        <div className="emg3-card">
-          <h4>Add a contact</h4>
-          <form className="emg3-form" onSubmit={addContact} noValidate>
-            <InputField
-              label="Full name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              error={errors.name}
-              placeholder="e.g. Rahul Sharma"
-            />
-            <InputField
-              label="Mobile number"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              error={errors.phone}
-              placeholder="9876543210"
-            />
-            <button type="submit" className="emg3-btn">Save Contact</button>
-          </form>
-        </div>
-
-        {/* List */}
-        <div className="emg3-card">
-          <h4>Saved contacts ({myContacts.length})</h4>
-          {myContacts.length === 0 && <p className="emg3-muted">No contacts added yet.</p>}
-          {myContacts.map((c) => (
-            <div key={c.id} className="emg3-row">
-              <div>
-                <strong>{c.name}</strong>
-                <small>{c.phone}</small>
-              </div>
-              <button className="emg3-btn emg3-btn-red" onClick={() => deleteContact(c.id)}>
-                Delete
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ================= 3. Hotlines ================= */}
-      <h3 className="emg-section-title" style={{ marginTop: "36px" }}>
-        📞 Emergency Hotlines & Rescue Numbers
-      </h3>
-      <div className="emg-contacts-grid">
-        {CONTACTS.map((c) => (
-          <a key={c.label} href={`tel:${c.number}`} className="emg-contact-card">
-            <span className="emg-contact-icon">{c.icon}</span>
-            <span className="emg-contact-label">{c.label}</span>
-            <span className="emg-contact-number">{c.number}</span>
-          </a>
-        ))}
-      </div>
-
-      {/* Chhota message (toast) */}
-      {message.text !== "" && (
-        <div className={message.bad ? "emg3-toast bad" : "emg3-toast"}>{message.text}</div>
-      )}
     </div>
   );
 }
