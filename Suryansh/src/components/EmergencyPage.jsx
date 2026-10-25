@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { loadData, HOSPITALS_SEED } from "../mock-storage";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import HealthTips from "./HealthTips";
 import "../App.css";
 
 
@@ -29,6 +31,9 @@ function InputField({ label, name, value, onChange, error, placeholder }) {
 }
 
 export default function EmergencyPage({ username }) {
+  // Concept: Custom Hook - dynamically sets page title in browser tab
+  useDocumentTitle("Emergency & Hospital Beds");
+
   // ----- Hospital beds ke states -----
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -223,7 +228,7 @@ export default function EmergencyPage({ username }) {
               value={form.name}
               onChange={handleChange}
               error={errors.name}
-              placeholder="e.g. Rahul Sharma"
+              placeholder="e.g. Alice"
             />
             <InputField
               label="Mobile number"
@@ -267,6 +272,11 @@ export default function EmergencyPage({ username }) {
             <span className="emg-contact-number">{c.number}</span>
           </a>
         ))}
+      </div>
+
+      {/* VIVA TOPIC: API Handling Demonstration (fetch + useEffect) */}
+      <div style={{ marginTop: "36px" }}>
+        <HealthTips />
       </div>
 
       {message.text !== "" && (
