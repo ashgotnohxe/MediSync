@@ -6,6 +6,7 @@ import DoctorsPage from "./DoctorsPage.jsx";
 import NavBar from "./NavBar.jsx";
 import "./App.css";
 
+
 // only these pages exist in this standalone bundle
 const DASHBOARD_PAGES = ["History", "Doctors"];
 
