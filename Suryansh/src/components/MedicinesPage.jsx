@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import PaymentModal from "./PaymentModal";
 import DeliveryCountdown from "./DeliveryCountdown";
 
@@ -61,8 +60,6 @@ function MedCard({ med, qty, onAdd, onRemove }) {
 }
 
 export default function MedicinesPage({ username }) {
-  useDocumentTitle("Hospital Pharmacy & Medicines");
-
   const [symptom, setSymptom] = useState("");
   const [suggested, setSuggested] = useState([]);
   const [cart, setCart] = useState({});

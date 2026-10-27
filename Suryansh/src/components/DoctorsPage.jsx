@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { DOCTORS } from "../mock-storage";
 import PaymentModal from "./PaymentModal";
 
 const specialties = [
@@ -15,8 +12,25 @@ const specialties = [
   "Neurologist",
 ];
 
-// Consistent standardized doctor list shared with AppointmentsPage and DoctorDetailsPage
-const doctorList = DOCTORS;
+const doctorNames = [
+  "Ananya Rao", "Vikram Sen", "Meera Iyer", "Farhan Ali", "Kavita Joshi",
+  "Rohan Das", "Priya Nair", "Sanjay Mehta", "Neha Kapoor", "Arjun Singh",
+  "Divya Menon", "Karan Malhotra", "Simran Kaur", "Aditya Verma", "Pooja Sharma",
+  "Rahul Khanna", "Ritu Bansal", "Manish Gupta", "Sneha Reddy", "Amit Chopra",
+  "Kritika Sinha", "Nikhil Bhatia", "Anjali Desai", "Suresh Pillai", "Tanvi Shah",
+  "Deepak Yadav", "Ishita Roy", "Varun Kapoor", "Payal Agarwal", "Gaurav Nanda",
+  "Swati Kulkarni", "Rajesh Pandey", "Nidhi Trivedi", "Harsh Vora", "Komal Saxena",
+  "Yash Thakur", "Alisha Fernandes", "Mohit Chawla", "Preeti Rawat", "Siddharth Menon",
+];
+
+const doctorList = doctorNames.map((name, index) => ({
+  id: index + 1,
+  name: "Dr. " + name,
+  specialty: specialties[index % specialties.length],
+  price: 150 + (index % 8) * 30,
+  experience: (5 + (index % 12)) + " yrs",
+  rating: (4.5 + ((index % 5) * 0.1)).toFixed(1),
+}));
 
 const medicineByCategory = {
   fever: {
@@ -96,7 +110,6 @@ function formatTime(totalSeconds) {
 }
 
 export default function DoctorsPage({ username }) {
-  useDocumentTitle("Hospital Doctors Directory");
   const [filter, setFilter] = useState("All");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [step, setStep] = useState(""); // pay, connecting, call, prescription, medpay, delivered
@@ -361,29 +374,11 @@ export default function DoctorsPage({ username }) {
                 <p className="doc-exp">{doc.experience} exp · ⭐ {doc.rating}</p>
               </div>
             </div>
-            <div className="doc-card-bottom" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+            <div className="doc-card-bottom">
               <span className="doc-price">₹{doc.price} / consult</span>
-              <div style={{ display: "flex", gap: "6px" }}>
-                <Link
-                  to={`/doctors/${doc.id}`}
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    textDecoration: "none",
-                    background: "#f1f5f9",
-                    color: "#0f172a",
-                    fontWeight: 600,
-                    border: "1px solid #cbd5e1"
-                  }}
-                  title="Dynamic Route (:id) with useParams"
-                >
-                  Profile
-                </Link>
-                <button className="doc-call-btn" onClick={() => openCall(doc)}>
-                  Consult Now
-                </button>
-              </div>
+              <button className="doc-call-btn" onClick={() => openCall(doc)}>
+                Consult Now
+              </button>
             </div>
           </div>
         ))}

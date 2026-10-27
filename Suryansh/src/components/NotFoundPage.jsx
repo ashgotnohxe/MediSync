@@ -1,18 +1,34 @@
 import { Link } from "react-router-dom";
-import Button from "./common/Button";
 
-
-export default function NotFoundPage() {
+// NotFoundPage: Catches any unmatched route ('*') and provides helpful recovery links
+function NotFoundPage() {
   return (
-    <div style={{ textAlign: "center", padding: "60px 20px" }}>
-      <h1 style={{ fontSize: "72px", margin: "0 0 10px 0", color: "#0284c7" }}>404</h1>
-      <h2 style={{ fontSize: "24px", margin: "0 0 16px 0", color: "#1e293b" }}>Page Not Found</h2>
-      <p style={{ color: "#64748b", maxWidth: "450px", margin: "0 auto 24px auto" }}>
-        The healthcare page or portal route you requested does not exist or has been moved.
+    <div className="page-container" style={{ textAlign: "center", padding: "48px 16px" }}>
+      <div style={{ fontSize: "64px", marginBottom: "16px" }}>🔍</div>
+      <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>404 - Page Not Found</h2>
+      <p className="subtitle" style={{ marginBottom: "24px" }}>
+        The page you are looking for does not exist in the hospital portal.
       </p>
-      <Link to="/" style={{ textDecoration: "none" }}>
-        <Button variant="primary">← Return to Home Portal</Button>
-      </Link>
+
+      {/* Quick recovery navigation buttons */}
+      <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+        <Link
+          to="/beds"
+          className="doc-tab-btn active"
+          style={{ textDecoration: "none", display: "inline-flex" }}
+        >
+          <span>🛏️</span> Go to Beds
+        </Link>
+        <Link
+          to="/patients"
+          className="doc-tab-btn"
+          style={{ textDecoration: "none", display: "inline-flex", background: "#f1f5f9" }}
+        >
+          <span>👥</span> View Patients
+        </Link>
+      </div>
     </div>
   );
 }
+
+export default NotFoundPage;

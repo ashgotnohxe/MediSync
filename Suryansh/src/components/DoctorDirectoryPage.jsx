@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DOCTORS } from '../mock-storage';
 
+// DoctorDirectoryPage: Read-only searchable directory of medical specialists
 function DoctorDirectoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredDoctors = DOCTORS.filter(doc => 
-    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    doc.specialty.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Derived filtered doctors computed during render (never stored in state)
+  const filteredDoctors = DOCTORS.filter((doc) => {
+    const term = searchTerm.toLowerCase();
+    const nameMatch = (doc.name || '').toLowerCase().includes(term);
+    const specialtyMatch = (doc.specialty || '').toLowerCase().includes(term);
+    return nameMatch || specialtyMatch;
+  });
 
   return (
     <div className="page-container">
       <h2>Doctor Directory</h2>
-      <p className="subtitle">Browse all healthcare professionals in the CareBridge network.</p>
+      <p className="subtitle">Browse all healthcare professionals in the MediSync network.</p>
       
+      {/* Search input filter */}
       <div className="search-container">
         <input 
           type="text" 
@@ -30,14 +35,16 @@ function DoctorDirectoryPage() {
         </div>
       ) : (
         <div className="card-list">
-          {filteredDoctors.map(doctor => (
+          {filteredDoctors.map((doctor) => (
             <div key={doctor.id} className="card doctor-card">
               <div className="avatar-circle">
                 <span className="avatar-icon">🧑‍⚕️</span>
               </div>
               <div className="card-info">
                 <h3>{doctor.name}</h3>
-                <p className="specialty-text">{doctor.specialty} • {doctor.experience} experience</p>
+                <p className="specialty-text">
+                  {doctor.specialty} • {doctor.experience} experience
+                </p>
                 <div className="rating">
                   ⭐ {doctor.rating} Rating
                 </div>
