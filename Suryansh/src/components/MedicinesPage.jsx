@@ -26,16 +26,30 @@ function MedCard({ med, qty, onAdd, onRemove }) {
 
       <div className="med-card-action">
         {qty === 0 ? (
-          <button onClick={() => onAdd(med.id)} className="med-add-btn">
-            + Add
+          <button
+            type="button"
+            onClick={() => onAdd(med.id)}
+            className="med-add-btn"
+          >
+            + Add to Cart
           </button>
         ) : (
           <div className="med-qty-row">
-            <button onClick={() => onRemove(med.id)} className="med-qty-btn">
+            <button
+              type="button"
+              onClick={() => onRemove(med.id)}
+              className="med-qty-btn"
+              aria-label={`Remove one ${med.name}`}
+            >
               −
             </button>
             <span className="med-qty-val">{qty}</span>
-            <button onClick={() => onAdd(med.id)} className="med-qty-btn">
+            <button
+              type="button"
+              onClick={() => onAdd(med.id)}
+              className="med-qty-btn"
+              aria-label={`Add one ${med.name}`}
+            >
               +
             </button>
           </div>
@@ -51,6 +65,9 @@ export default function MedicinesPage({ username }) {
   const [cart, setCart] = useState({});
   const [showPay, setShowPay] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sort, setSort] = useState("none");
 
   useEffect(() => {
     loadOrders();
@@ -58,62 +75,124 @@ export default function MedicinesPage({ username }) {
 
   function loadOrders() {
     try {
-      const o = localStorage.getItem(`medorders_${username}`);
-      setOrders(o ? JSON.parse(o) : []);
+      const saved = localStorage.getItem(`medorders_${username}`);
+      setOrders(saved ? JSON.parse(saved) : []);
     } catch (e) {
-      console.error(e);
+      console.error("Could not load orders:", e);
+      setOrders([]);
     }
   }
 
   function suggest() {
     const q = symptom.trim().toLowerCase();
+
     if (!q) {
       setSuggested([]);
       return;
     }
+
     setSuggested(
       MEDICINES.filter((m) =>
-        m.tags.some((t) => q.includes(t) || t.includes(q))
+        m.tags.some((tag) => q.includes(tag) || tag.includes(q))
       )
     );
   }
 
   function addToCart(id) {
-    setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
+    setCart((current) => ({
+      ...current,
+      [id]: (current[id] || 0) + 1,
+    }));
   }
 
   function removeFromCart(id) {
-    setCart((c) => {
-      const next = { ...c };
-      if (next[id] > 1) next[id] -= 1;
-      else delete next[id];
+    setCart((current) => {
+      const next = { ...current };
+
+      if (next[id] > 1) {
+        next[id] -= 1;
+      } else {
+        delete next[id];
+      }
+
       return next;
     });
   }
 
-  const total = Object.entries(cart).reduce((sum, [id, qty]) => {
-    const med = MEDICINES.find((m) => m.id === Number(id));
-    return sum + (med ? med.price * qty : 0);
-  }, 0);
+  const cartItems = Object.entries(cart)
+    .map(([id, qty]) => {
+      const med = MEDICINES.find((item) => item.id === Number(id));
+      return med ? { ...med, qty } : null;
+    })
+    .filter(Boolean);
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
 
   function onPaySuccess() {
-    const items = Object.entries(cart).map(([id, qty]) => {
-      const med = MEDICINES.find((m) => m.id === Number(id));
-      return { id: med.id, name: med.name, price: med.price, qty };
-    });
-    const order = { items, total, placedAt: Date.now() };
+    const items = cartItems.map(({ id, name, price, qty }) => ({
+      id,
+      name,
+      price,
+      qty,
+    }));
+
+    const order = {
+      id: Date.now(),
+      items,
+      total,
+      placedAt: Date.now(),
+      status: "Confirmed",
+    };
+
     const newOrders = [order, ...orders];
-    localStorage.setItem(`medorders_${username}`, JSON.stringify(newOrders));
-    setOrders(newOrders);
-    setCart({});
-    setShowPay(false);
+
+    try {
+      localStorage.setItem(
+        `medorders_${username}`,
+        JSON.stringify(newOrders)
+      );
+
+      setOrders(newOrders);
+      setCart({});
+      setShowPay(false);
+    } catch (e) {
+      console.error("Could not save order:", e);
+      alert("Order could not be saved. Please try again.");
+    }
+  }
+
+  const categories = [
+    "All",
+    ...new Set(MEDICINES.map((med) => med.category)),
+  ];
+
+  let list = MEDICINES.filter(
+    (med) =>
+      med.name.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "All" || med.category === category)
+  );
+
+  if (sort === "low") {
+    list = [...list].sort((a, b) => a.price - b.price);
+  } else if (sort === "high") {
+    list = [...list].sort((a, b) => b.price - a.price);
   }
 
   return (
     <div className="med-page">
       <h2 className="med-title">Medicine Store & Fast Pharmacy</h2>
+
       <p className="med-subtitle">
-        Tell us your symptoms for instant recommendations · 🚚 5-minute express home delivery
+        Tell us your symptoms for instant recommendations ·
+        🚚 5-minute express home delivery
       </p>
 
       <div className="med-search-row">
@@ -121,7 +200,7 @@ export default function MedicinesPage({ username }) {
           value={symptom}
           onChange={(e) => setSymptom(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && suggest()}
-          placeholder="Type symptoms e.g. fever, headache, cold, stomach pain..."
+          placeholder="Enter symptoms e.g. fever, headache, cold..."
           className="med-search-input"
         />
         <button onClick={suggest} className="med-search-btn">
@@ -130,14 +209,17 @@ export default function MedicinesPage({ username }) {
       </div>
 
       {suggested.length > 0 && (
-        <div style={{ marginBottom: "28px" }}>
-          <h3 className="med-section-title">✨ Recommended for Your Symptoms</h3>
+        <div style={{ marginBottom: 28 }}>
+          <h3 className="med-section-title">
+            ✨ Recommended for Your Symptoms
+          </h3>
+
           <div className="med-grid">
-            {suggested.map((m) => (
+            {suggested.map((med) => (
               <MedCard
-                key={m.id}
-                med={m}
-                qty={cart[m.id] || 0}
+                key={med.id}
+                med={med}
+                qty={cart[med.id] || 0}
                 onAdd={addToCart}
                 onRemove={removeFromCart}
               />
@@ -146,51 +228,163 @@ export default function MedicinesPage({ username }) {
         </div>
       )}
 
-      <h3 className="med-section-title">All Available Medicines ({MEDICINES.length})</h3>
+      <h3 className="med-section-title">
+        All Available Medicines ({list.length})
+      </h3>
+
+      <div className="med-search-row">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by medicine name..."
+          className="med-search-input"
+        />
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="med-filter-select"
+        >
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="med-filter-select"
+        >
+          <option value="none">Sort: default</option>
+          <option value="low">Price: low to high</option>
+          <option value="high">Price: high to low</option>
+        </select>
+      </div>
+
+      {list.length === 0 && (
+        <p style={{ color: "#64748b" }}>No medicines found.</p>
+      )}
+
       <div className="med-grid">
-        {MEDICINES.map((m) => (
+        {list.map((med) => (
           <MedCard
-            key={m.id}
-            med={m}
-            qty={cart[m.id] || 0}
+            key={med.id}
+            med={med}
+            qty={cart[med.id] || 0}
             onAdd={addToCart}
             onRemove={removeFromCart}
           />
         ))}
       </div>
 
-      {total > 0 && (
-        <div className="med-cart-bar">
-          <div>
-            <div style={{ fontWeight: 700, fontSize: "16px" }}>
-              Cart Total: ₹{total}
+      {/* Cart */}
+      <div className="med-cart-panel">
+        <h3 className="med-section-title">
+          🛒 Your Cart ({totalItems} items)
+        </h3>
+
+        {cartItems.length === 0 ? (
+          <p style={{ color: "#64748b" }}>
+            Your cart is empty. Add medicines to get started.
+          </p>
+        ) : (
+          <>
+            {cartItems.map((item) => (
+              <div
+                key={item.id}
+                className="med-cart-item"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 12,
+                  flexWrap: "wrap",
+                  padding: "12px 0",
+                  borderBottom: "1px solid #e2e8f0",
+                }}
+              >
+                <div>
+                  <strong>{item.name}</strong>
+                  <div style={{ color: "#64748b", fontSize: 13 }}>
+                    ₹{item.price} × {item.qty} = ₹{item.price * item.qty}
+                  </div>
+                </div>
+
+                <div className="med-qty-row">
+                  <button
+                    type="button"
+                    className="med-qty-btn"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    −
+                  </button>
+                  <span className="med-qty-val">{item.qty}</span>
+                  <button
+                    type="button"
+                    className="med-qty-btn"
+                    onClick={() => addToCart(item.id)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
+                marginTop: 18,
+              }}
+            >
+              <strong style={{ fontSize: 20 }}>
+                Total: ₹{total}
+              </strong>
+
+              <button
+                type="button"
+                onClick={() => setShowPay(true)}
+                className="med-checkout-btn"
+              >
+                Proceed to Payment · ₹{total} →
+              </button>
             </div>
-            <div style={{ fontSize: "12px", color: "#64748b" }}>
-              {Object.values(cart).reduce((a, b) => a + b, 0)} item(s) in cart
-            </div>
-          </div>
-          <button onClick={() => setShowPay(true)} className="med-checkout-btn">
-            Proceed to Checkout (₹{total}) →
-          </button>
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       {orders.length > 0 && (
-        <div style={{ marginTop: "40px" }}>
-          <h3 className="med-section-title">📦 Your Recent Orders</h3>
+        <div style={{ marginTop: 40 }}>
+          <h3 className="med-section-title">
+            📦 Your Recent Orders
+          </h3>
+
           <div className="med-orders-list">
-            {orders.map((o, i) => (
-              <div key={i} className="med-order-card">
+            {orders.map((order, index) => (
+              <div key={order.id || index} className="med-order-card">
                 <div className="med-order-top">
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: "15px" }}>
-                      Order #{orders.length - i} · ₹{o.total}
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>
+                      Order #{orders.length - index} · ₹{order.total}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#64748b" }}>
-                      {o.items?.map((item) => `${item.name} (x${item.qty})`).join(", ")}
+
+                    <div style={{ fontSize: 12, color: "#64748b" }}>
+                      {order.items
+                        ?.map((item) => `${item.name} (x${item.qty})`)
+                        .join(", ")}
+                    </div>
+
+                    <div style={{ fontSize: 12, marginTop: 4 }}>
+                      Status: {order.status || "Confirmed"}
                     </div>
                   </div>
-                  <DeliveryCountdown placedAt={o.placedAt} />
+
+                  <DeliveryCountdown placedAt={order.placedAt} />
                 </div>
               </div>
             ))}
@@ -209,3 +403,9 @@ export default function MedicinesPage({ username }) {
     </div>
   );
 }
+
+
+
+
+
+
