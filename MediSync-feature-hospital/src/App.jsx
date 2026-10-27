@@ -1,73 +1,72 @@
-import { useState, useEffect } from "react";
-
+import { useState } from "react";
+import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import AppNavbar from "./AppNavbar.jsx";
 import AppointmentsPage from "./AppointmentsPage.jsx";
 import MedicinesPage from "./MedicinesPage.jsx";
 import HistoryPage from "./HistoryPage.jsx";
 import EmergencyPage from "./EmergencyPage.jsx";
+import HospitalBedDetails from "./HospitalBedDetails.jsx";
+import NotFoundPage from "./NotFoundPage.jsx";
 
-// URL path se page nikaalne ka helper
-function getPageFromPath(path) {
-  const map = {
-    "/history": "History",
-    "/appointments": "Appointments",
-    "/medicines": "Medicines",
-    "/emergency": "Emergency",
-    "/doctors": "Doctors",
-  };
-  return map[path] || "History"; // default = History (patient page)
-}
+// ==========================================================
+// VIVA TOPIC: React Router Configuration
+// 1. BrowserRouter wraps the App in main.jsx
+// 2. Routes & Route map paths to components:
+//    - /history -> HistoryPage (Medical History)
+//    - /appointments -> AppointmentsPage (OPD Booking)
+//    - /medicines -> MedicinesPage (Pharmacy & Orders)
+//    - /emergency -> EmergencyPage (Beds & Hotline)
+//    - /emergency/:id -> HospitalBedDetails (Dynamic Route with useParams)
+//    - * -> NotFoundPage (404 Fallback)
+// 3. useNavigate & useLocation for smooth client-side routing
+// ==========================================================
 
 export default function App() {
-  const [page, setPage] = useState(() => getPageFromPath(window.location.pathname));
   const [username] = useState("neha");
-  const [displayName] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // browser ke back/forward button ke liye
-  useEffect(() => {
-    const onPopState = () => setPage(getPageFromPath(window.location.pathname));
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+  // Determine active page label based on current route
+  let activePage = "History";
+  if (location.pathname.startsWith("/appointments")) activePage = "Appointments";
+  else if (location.pathname.startsWith("/medicines")) activePage = "Medicines";
+  else if (location.pathname.startsWith("/emergency")) activePage = "Emergency";
+  else if (location.pathname === "/history" || location.pathname === "/") activePage = "History";
 
-  // agar root pe koi aaye to seedha /history pe le jao
-  useEffect(() => {
-    if (window.location.pathname === "/") {
-      window.history.replaceState({}, "", "/history");
-    }
-  }, []);
-
-  function navigate(pageName) {
+  function handleNavigate(pageName) {
     const pathMap = {
       History: "/history",
       Appointments: "/appointments",
       Medicines: "/medicines",
       Emergency: "/emergency",
-      Doctors: "/doctors",
     };
-    const path = pathMap[pageName] || "/history";
-    window.history.pushState({}, "", path); // URL change karo
-    setPage(pageName); // component render karo
+    navigate(pathMap[pageName] || "/history");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
     <div>
       <AppNavbar
-        username={displayName}
-        activePage={page}
-        onNavigate={navigate}
-        subtitle={page}
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        subtitle={activePage}
       />
 
-      {page === "History" && (
-        <HistoryPage username={username} displayName={displayName} />
-      )}
-      {page === "Appointments" && <AppointmentsPage username={username} />}
-      {page === "Medicines" && <MedicinesPage username={username} />}
-      {page === "Emergency" && <EmergencyPage username={username} />}
-      {page === "Doctors" && (
-        <div style={{ padding: 24 }}>Doctors page (Person 1 ka scope)</div>
-      )}
+      <main>
+        <Routes>
+          <Route path="/" element={<Navigate to="/history" replace />} />
+          <Route path="/history" element={<HistoryPage username={username} />} />
+          <Route path="/appointments" element={<AppointmentsPage username={username} />} />
+          <Route path="/medicines" element={<MedicinesPage username={username} />} />
+          <Route path="/emergency" element={<EmergencyPage username={username} />} />
+
+          {/* Dynamic route demonstrating useParams (:id) */}
+          <Route path="/emergency/:id" element={<HospitalBedDetails />} />
+
+          {/* 404 Not Found Page */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
     </div>
   );
 }

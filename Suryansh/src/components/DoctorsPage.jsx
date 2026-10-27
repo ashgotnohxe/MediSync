@@ -32,6 +32,38 @@ const doctorList = doctorNames.map((name, index) => ({
   rating: (4.5 + ((index % 5) * 0.1)).toFixed(1),
 }));
 
+// Fake API (real project me yahan fetch("/api/doctors") aayega)
+function fetchDoctorsFromApi() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(doctorList), 800);
+  });
+}
+
+// Profile modal ke liye extra details (doctor ke id se bante hain)
+function getProfileDetails(doctor) {
+  const index = doctor.id - 1;
+  const days = ["Monday - Saturday", "Monday - Friday", "Tuesday - Sunday"];
+  const timings = ["09:00 AM - 05:00 PM", "10:00 AM - 06:00 PM", "08:00 AM - 02:00 PM"];
+  const wings = ["A", "B", "C"];
+  return {
+    days: days[index % days.length],
+    timing: timings[index % timings.length],
+    branch: "MediSync Central Healthcare, Wing " + wings[index % wings.length],
+  };
+}
+
+// ---------- Debounce hook (search ke liye) ----------
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+const PAGE_SIZE = 9;
+
 const medicineByCategory = {
   fever: {
     name: "Paracetamol 500mg",
@@ -118,6 +150,50 @@ export default function DoctorsPage({ username }) {
   const [replyNumber, setReplyNumber] = useState(0);
   const [category, setCategory] = useState("general");
   const [callSeconds, setCallSeconds] = useState(0);
+  const [profileDoctor, setProfileDoctor] = useState(null); // Profile modal
+
+  // New states: API data, loading, error
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  // New states: search, sort, pagination
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("default");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const debouncedSearch = useDebounce(search, 400);
+
+  async function loadDoctors() {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const data = await fetchDoctorsFromApi();
+      setDoctors(data);
+    } catch (e) {
+      setLoadError("Could not load doctors. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadDoctors();
+  }, []);
+
+  // Filter / search / sort badalne par pagination reset
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter, debouncedSearch, sortBy]);
+
+  // Esc dabane par Profile modal band ho jaye
+  useEffect(() => {
+    if (!profileDoctor) return;
+    function onKeyDown(e) {
+      if (e.key === "Escape") setProfileDoctor(null);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [profileDoctor]);
 
   useEffect(() => {
     if (step !== "call") return;
@@ -127,8 +203,25 @@ export default function DoctorsPage({ username }) {
     return () => clearInterval(timer);
   }, [step]);
 
-  const filteredDoctors =
-    filter === "All" ? doctorList : doctorList.filter((d) => d.specialty === filter);
+  // Filter -> Search -> Sort
+  let filteredDoctors = doctors.filter((d) => {
+    const matchesFilter = filter === "All" || d.specialty === filter;
+    const q = debouncedSearch.trim().toLowerCase();
+    const matchesSearch =
+      q === "" || d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q);
+    return matchesFilter && matchesSearch;
+  });
+
+  if (sortBy === "priceLow") filteredDoctors = [...filteredDoctors].sort((a, b) => a.price - b.price);
+  if (sortBy === "priceHigh") filteredDoctors = [...filteredDoctors].sort((a, b) => b.price - a.price);
+  if (sortBy === "rating") filteredDoctors = [...filteredDoctors].sort((a, b) => Number(b.rating) - Number(a.rating));
+
+  const visibleDoctors = filteredDoctors.slice(0, visibleCount);
+
+  function consultFromProfile(doctor) {
+    setProfileDoctor(null);
+    openCall(doctor);
+  }
 
   function openCall(doctor) {
     setSelectedDoctor(doctor);
@@ -345,6 +438,29 @@ export default function DoctorsPage({ username }) {
         <p className="doc-subtitle">Talk to top specialists via real-time encrypted consultation</p>
       </div>
 
+      {/* Search + Sort */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
+        <input
+          className="auth-input"
+          style={{ flex: 1, minWidth: "200px", marginBottom: 0 }}
+          placeholder="🔍 Search doctor or specialty..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="auth-input"
+          style={{ width: "200px", marginBottom: 0 }}
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="default">Sort: Default</option>
+          <option value="priceLow">Price: Low to High</option>
+          <option value="priceHigh">Price: High to Low</option>
+          <option value="rating">Rating: Best First</option>
+        </select>
+      </div>
+
+      {/* Filter pills (tabs) */}
       <div className="doc-filters">
         <button
           className={`doc-filter-pill ${filter === "All" ? "active" : ""}`}
@@ -363,26 +479,111 @@ export default function DoctorsPage({ username }) {
         ))}
       </div>
 
-      <div className="doc-grid">
-        {filteredDoctors.map((doc) => (
-          <div key={doc.id} className="doc-card">
-            <div className="doc-card-top">
-              <div className="doc-avatar">🧑‍⚕️</div>
-              <div>
-                <h3 className="doc-name">{doc.name}</h3>
-                <p className="doc-spec">{doc.specialty}</p>
-                <p className="doc-exp">{doc.experience} exp · ⭐ {doc.rating}</p>
+      {/* Loading / Error / Empty / List */}
+      {loading && <p style={{ padding: "30px", textAlign: "center" }}>⏳ Loading doctors...</p>}
+
+      {!loading && loadError && (
+        <div style={{ padding: "30px", textAlign: "center" }}>
+          <p className="appt-error">{loadError}</p>
+          <button className="doc-call-btn" onClick={loadDoctors}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !loadError && filteredDoctors.length === 0 && (
+        <p style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+          No doctors found. Try a different search.
+        </p>
+      )}
+
+      {!loading && !loadError && filteredDoctors.length > 0 && (
+        <>
+          <div className="doc-grid">
+            {visibleDoctors.map((doc) => (
+              <div key={doc.id} className="doc-card">
+                <div className="doc-card-top">
+                  <div className="doc-avatar">🧑‍⚕️</div>
+                  <div>
+                    <h3 className="doc-name">{doc.name}</h3>
+                    <p className="doc-spec">{doc.specialty}</p>
+                    <p className="doc-exp">{doc.experience} exp · ⭐ {doc.rating}</p>
+                  </div>
+                </div>
+                <div className="doc-card-bottom">
+                  <span className="doc-price">₹{doc.price} / consult</span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      className="modal-cancel-btn"
+                      style={{ width: "auto", padding: "6px 14px", fontSize: "13px" }}
+                      onClick={() => setProfileDoctor(doc)}
+                    >
+                      Profile
+                    </button>
+                    <button className="doc-call-btn" onClick={() => openCall(doc)}>
+                      Consult Now
+                    </button>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Pagination: Load More */}
+          {visibleCount < filteredDoctors.length && (
+            <div style={{ textAlign: "center", margin: "24px 0" }}>
+              <button className="doc-call-btn" onClick={() => setVisibleCount(visibleCount + PAGE_SIZE)}>
+                Load More ({filteredDoctors.length - visibleCount} left)
+              </button>
             </div>
-            <div className="doc-card-bottom">
-              <span className="doc-price">₹{doc.price} / consult</span>
-              <button className="doc-call-btn" onClick={() => openCall(doc)}>
+          )}
+        </>
+      )}
+
+      {/* ---------- Profile Modal ---------- */}
+      {profileDoctor && (
+        <div className="modal-overlay" onClick={() => setProfileDoctor(null)}>
+          {/* box ke andar click karne se modal band nahi hoga */}
+          <div className="modal-box" style={{ maxWidth: "480px" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+              <div>
+                <h3 className="modal-title">{profileDoctor.name}</h3>
+                <p style={{ color: "#0284c7", fontSize: "14px", fontWeight: 600 }}>{profileDoctor.specialty}</p>
+              </div>
+              <span style={{ fontWeight: 700, fontSize: "13px" }}>⭐ {profileDoctor.rating} / 5.0</span>
+            </div>
+
+            <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "14px 0" }} />
+
+            <div style={{ fontSize: "14px", lineHeight: "1.9" }}>
+              <p><strong>Doctor ID:</strong> {profileDoctor.id}</p>
+              <p><strong>Department:</strong> {profileDoctor.specialty}</p>
+              <p><strong>Clinical Experience:</strong> {profileDoctor.experience}</p>
+              <p><strong>Consultation Days:</strong> {getProfileDetails(profileDoctor).days}</p>
+              <p><strong>OPD Timings:</strong> {getProfileDetails(profileDoctor).timing}</p>
+              <p><strong>Hospital Branch:</strong> {getProfileDetails(profileDoctor).branch}</p>
+              <p><strong>Consultation Fee:</strong> ₹{profileDoctor.price}</p>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+              <button
+                className="modal-pay-btn"
+                style={{ flex: 1 }}
+                onClick={() => consultFromProfile(profileDoctor)}
+              >
                 Consult Now
+              </button>
+              <button
+                className="modal-cancel-btn"
+                style={{ flex: 1 }}
+                onClick={() => setProfileDoctor(null)}
+              >
+                Close
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

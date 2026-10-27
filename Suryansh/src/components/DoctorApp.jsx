@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { Routes, Route } from "react-router-dom";
 import { loadData, saveData, QUEUE_SEED } from "../mock-storage";
+import Layout from "./Layout";
 import DoctorPatientsPage from "./DoctorPatientsPage";
 import DoctorBedsPage from "./DoctorBedsPage";
 import DoctorDirectoryPage from "./DoctorDirectoryPage";
+import RegisterPatientPage from "./RegisterPatientPage";
+import NotFoundPage from "./NotFoundPage";
 
 function StatCard({ icon, value, label, accentClass }) {
   return (
@@ -55,7 +59,7 @@ export function DoctorDashboard({ queue, markDone, doctorName }) {
       <div className="doc-profile-banner">
         <div className="doc-profile-avatar">🩺</div>
         <div>
-          <div className="doc-profile-name">{doctorName || "Dr. Wsed"}</div>
+          <div className="doc-profile-name">{doctorName || "Dr. Staff"}</div>
           <div className="doc-profile-spec">Senior Consultant · Hospital Staff Portal</div>
         </div>
       </div>
@@ -104,29 +108,20 @@ export function AppointmentsList({ queue, markDone }) {
   );
 }
 
-const DOCTOR_NAV = [
-  { key: "dashboard", label: "Dashboard", icon: "📊" },
-  { key: "appointments", label: "Appts Queue", icon: "📋" },
-  { key: "patients", label: "Patients", icon: "👥" },
-  { key: "beds", label: "Beds Management", icon: "🛏️" },
-  { key: "directory", label: "Directory", icon: "🩺" },
-];
-
 export default function DoctorApp({ doctorName, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("dashboard");
 
+  // Load shared appointment queue on mount
   useEffect(() => {
+    async function loadQueueData() {
+      setLoading(true);
+      const data = await loadData("queue", true, QUEUE_SEED);
+      setQueue(data);
+      setLoading(false);
+    }
     loadQueueData();
   }, []);
-
-  async function loadQueueData() {
-    setLoading(true);
-    const data = await loadData("queue", true, QUEUE_SEED);
-    setQueue(data);
-    setLoading(false);
-  }
 
   async function markDone(id) {
     const updated = queue.map((a) =>
@@ -137,65 +132,47 @@ export default function DoctorApp({ doctorName, onLogout }) {
   }
 
   return (
-    <div className="doc-portal-layout">
-      {/* Top Header */}
-      <header className="doc-top-nav">
-        <div className="home-logo">
-          <div className="home-logo-icon">+</div>
-          <div>
-            <div className="home-logo-text">MediSync Doctor</div>
-            <div style={{ fontSize: "11px", color: "#64748b" }}>Hospital Administration</div>
-          </div>
-        </div>
+    <Routes>
+      <Route
+        path="/"
+        element={<Layout doctorName={doctorName} onLogout={onLogout} />}
+      >
+        <Route
+          index
+          element={
+            loading ? (
+              <div className="doc-loading">
+                Loading live hospital queue...
+              </div>
+            ) : (
+              <DoctorDashboard
+                queue={queue}
+                markDone={markDone}
+                doctorName={doctorName}
+              />
+            )
+          }
+        />
 
-        <div className="doc-top-tabs">
-          {DOCTOR_NAV.map((n) => (
-            <button
-              key={n.key}
-              onClick={() => setTab(n.key)}
-              className={`doc-tab-btn ${tab === n.key ? "active" : ""}`}
-            >
-              <span>{n.icon}</span> {n.label}
-            </button>
-          ))}
-        </div>
+        <Route
+          path="appointments"
+          element={
+            loading ? (
+              <div className="doc-loading">
+                Loading live hospital queue...
+              </div>
+            ) : (
+              <AppointmentsList queue={queue} markDone={markDone} />
+            )
+          }
+        />
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <button
-            type="button"
-            className="theme-toggle-btn"
-            onClick={toggleTheme}
-            title={`Switch to ${theme === "dark" ? "Light" : "Dark"} mode`}
-            aria-label={`Toggle theme (currently ${theme})`}
-          >
-            <span className="theme-toggle-icon">{theme === "dark" ? "☀️" : "🌙"}</span>
-            <span className="theme-toggle-label">{theme === "dark" ? "Light" : "Dark"}</span>
-          </button>
-          <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--theme-text-secondary, #334155)" }}>
-            🧑‍⚕️ {doctorName || "Dr. Staff"}
-          </span>
-          <button className="app-nav-logout" onClick={onLogout}>
-            Logout
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="doc-portal-main">
-        {loading ? (
-          <div className="doc-loading">Loading live hospital queue...</div>
-        ) : tab === "dashboard" ? (
-          <DoctorDashboard queue={queue} markDone={markDone} doctorName={doctorName} />
-        ) : tab === "appointments" ? (
-          <AppointmentsList queue={queue} markDone={markDone} />
-        ) : tab === "patients" ? (
-          <DoctorPatientsPage />
-        ) : tab === "beds" ? (
-          <DoctorBedsPage />
-        ) : (
-          <DoctorDirectoryPage />
-        )}
-      </main>
-    </div>
+        <Route path="beds" element={<DoctorBedsPage />} />
+        <Route path="patients" element={<DoctorPatientsPage />} />
+        <Route path="register-patient" element={<RegisterPatientPage />} />
+        <Route path="directory" element={<DoctorDirectoryPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }

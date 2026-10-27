@@ -8,18 +8,6 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import "./index.css";
 import App from "./components/App.jsx";
 
-// ==========================================================
-// VIVA TOPIC: Application Root Architecture & Hierarchy
-// 1. Provider (Redux Toolkit):
-//    Supplies global shared state (themeSlice, preferencesSlice)
-// 2. BrowserRouter (React Router):
-//    Provides client-side routing context for all app routes
-// 3. UserProvider (React Context API):
-//    Provides scoped patient/user session data (UserContext)
-// 4. ThemeProvider (Context API Bridge):
-//    Supplies theme context to components consuming useTheme()
-// ==========================================================
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>

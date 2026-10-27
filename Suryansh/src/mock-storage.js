@@ -44,7 +44,7 @@ export const DOCTORS = [
 
 export const HOSPITALS_SEED = [
   { id: 1, name: "City Care Hospital", distance: "1.2 km away", type: "24x7 Emergency", categories: ["Cardiac", "Trauma", "General"], available: 14, total: 60, beds: 14, totalBeds: 60 },
-  { id: 2, name: "CareBridge Multispeciality", distance: "2.8 km away", type: "24x7 Emergency", categories: ["Cardiac", "Neuro"], available: 3, total: 40, beds: 3, totalBeds: 40 },
+  { id: 2, name: "MediSync Multispeciality", distance: "2.8 km away", type: "24x7 Emergency", categories: ["Cardiac", "Neuro"], available: 3, total: 40, beds: 3, totalBeds: 40 },
   { id: 3, name: "Sunrise Children's Hospital", distance: "3.5 km away", type: "Pediatric Care", categories: ["Pediatric", "General"], available: 9, total: 30, beds: 9, totalBeds: 30 },
   { id: 4, name: "Apollo Clinic & Trauma", distance: "4.1 km away", type: "24x7 Emergency", categories: ["Trauma", "Orthopedic"], available: 11, total: 25, beds: 11, totalBeds: 25 }
 ];

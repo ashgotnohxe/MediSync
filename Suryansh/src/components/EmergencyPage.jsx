@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
-import { loadData, saveData, HOSPITALS_SEED } from "../mock-storage";
+import { loadData, HOSPITALS_SEED } from "../mock-storage";
+import "../App.css";
 
-const EMERGENCY_TYPES = [
-  { id: "accident", label: "Accident / Trauma", icon: "🚗" },
-  { id: "cardiac", label: "Cardiac Emergency", icon: "❤️" },
-  { id: "breathing", label: "Breathing Distress", icon: "🫁" },
-  { id: "injury", label: "Severe Injury", icon: "🩹" },
-  { id: "other", label: "Other Critical", icon: "⚠️" },
-];
 
 const CONTACTS = [
   { label: "Ambulance", number: "108", icon: "🚑" },
@@ -17,45 +11,123 @@ const CONTACTS = [
   { label: "Women Helpline", number: "1091", icon: "📞" },
 ];
 
+function InputField({ label, name, value, onChange, error, placeholder }) {
+  return (
+    <div className="emg3-field">
+      <label htmlFor={name}>{label}</label>
+      <input
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={error ? "emg3-input emg3-input-error" : "emg3-input"}
+      />
+      {error && <p className="emg3-error-text">{error}</p>}
+    </div>
+  );
+}
+
 export default function EmergencyPage({ username }) {
-  const [selectedType, setSelectedType] = useState(null);
-  const [confirmedMsg, setConfirmedMsg] = useState("");
+  // ----- Hospital beds ke states -----
   const [hospitals, setHospitals] = useState([]);
-  const [loadingBeds, setLoadingBeds] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("none");
+
+  const [myContacts, setMyContacts] = useState([]);
+  const [form, setForm] = useState({ name: "", phone: "" });
+  const [errors, setErrors] = useState({});
+
+
+  const [message, setMessage] = useState({ text: "", bad: false });
+
+  const storageKey = "emg_contacts_" + username;
 
   useEffect(() => {
     loadBeds();
-  }, []);
+    loadMyContacts();
+  }, [username]);
 
-  async function loadBeds() {
-    setLoadingBeds(true);
-    const data = await loadData("beds", true, HOSPITALS_SEED);
-    setHospitals(data);
-    setLoadingBeds(false);
+  function showMessage(text, bad) {
+    setMessage({ text: text, bad: !!bad });
+    setTimeout(() => setMessage({ text: "", bad: false }), 2500); // 2.5 sec baad hata do
   }
 
-  async function sendSOS() {
-    const typeLabel = selectedType
-      ? EMERGENCY_TYPES.find((t) => t.id === selectedType)?.label
-      : "General SOS Emergency";
+ 
+  async function loadBeds() {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await loadData("beds", true, HOSPITALS_SEED);
+      setHospitals(data);
+    } catch (e) {
+      setError("Could not load hospital beds. Please try again.");
+    }
+    setLoading(false);
+  }
 
-    const entry = {
-      type: typeLabel,
-      patient: username,
-      time: Date.now(),
-    };
 
-    // Personal SOS log
-    const raw = localStorage.getItem(`sos_${username}`);
-    const list = raw ? JSON.parse(raw) : [];
-    localStorage.setItem(`sos_${username}`, JSON.stringify([...list, entry]));
+  let list = hospitals.filter((h) =>
+    h.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-    // Shared SOS log for hospital/doctors
-    const sharedRaw = await loadData("sos_all", true, []);
-    await saveData("sos_all", [entry, ...sharedRaw], true);
 
-    setConfirmedMsg(`✅ High-priority SOS alert sent for "${typeLabel}". Nearby hospitals & ambulances alerted.`);
-    setTimeout(() => setConfirmedMsg(""), 6000);
+  function beds(h) {
+    return h.available !== undefined ? h.available : h.beds !== undefined ? h.beds : 0;
+  }
+  if (sort === "high") list = [...list].sort((a, b) => beds(b) - beds(a));
+  if (sort === "low") list = [...list].sort((a, b) => beds(a) - beds(b));
+
+  
+  function loadMyContacts() {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      setMyContacts(saved ? JSON.parse(saved) : []);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function saveContacts(newList) {
+    setMyContacts(newList);
+    localStorage.setItem(storageKey, JSON.stringify(newList));
+  }
+
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+
+  function validate() {
+    const newErrors = {};
+    if (form.name.trim().length < 3) {
+      newErrors.name = "Name must be at least 3 letters";
+    }
+    if (!/^[6-9][0-9]{9}$/.test(form.phone)) {
+      newErrors.phone = "Enter a valid 10-digit mobile number";
+    } else if (myContacts.some((c) => c.phone === form.phone)) {
+      newErrors.phone = "This number is already added";
+    }
+    return newErrors;
+  }
+
+  function addContact(e) {
+    e.preventDefault(); 
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return; // error hai to ruk jao
+
+    const newContact = { id: Date.now(), name: form.name.trim(), phone: form.phone };
+    saveContacts([...myContacts, newContact]);
+    setForm({ name: "", phone: "" });
+    showMessage(newContact.name + " added");
+  }
+
+  function deleteContact(id) {
+    saveContacts(myContacts.filter((c) => c.id !== id));
+    showMessage("Contact removed", true);
   }
 
   return (
@@ -63,39 +135,11 @@ export default function EmergencyPage({ username }) {
       <div className="emg-header">
         <h2 className="emg-heading">Emergency & Live Hospital Beds</h2>
         <p className="emg-subheading">
-          Instant ambulance dispatch, emergency hotlines, and real-time hospital bed status
+          Emergency hotlines, real-time hospital bed status and your emergency contacts
         </p>
       </div>
 
-      <div className="emg-type-row">
-        {EMERGENCY_TYPES.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setSelectedType(t.id)}
-            className={`emg-type-btn ${selectedType === t.id ? "selected" : ""}`}
-          >
-            <span className="emg-type-icon">{t.icon}</span>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <button className="emg-sos-btn" onClick={sendSOS}>
-        <span className="emg-sos-icon">🆘</span>
-        <span className="emg-sos-text">
-          <span className="emg-sos-title">Dispatch Instant SOS Alert</span>
-          <span className="emg-sos-desc">Sends GPS & medical distress alert to nearest ambulance & hospital</span>
-        </span>
-      </button>
-
-      {confirmedMsg && (
-        <div className="emg-confirm-box">
-          <span className="emg-confirm-icon">🚨</span>
-          <span>{confirmedMsg}</span>
-        </div>
-      )}
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "32px", marginBottom: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <h3 className="emg-section-title" style={{ margin: 0 }}>
           🏥 Connected Hospital Bed Availability (Live)
         </h3>
@@ -104,13 +148,38 @@ export default function EmergencyPage({ username }) {
         </button>
       </div>
 
-      {loadingBeds ? (
-        <p style={{ color: "#64748b" }}>Loading hospital bed status...</p>
-      ) : (
+      <div className="emg3-controls">
+        <input
+          className="emg3-input emg3-search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search hospital by name..."
+        />
+        <select className="emg3-select" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <option value="none">Sort: default</option>
+          <option value="high">Most beds first</option>
+          <option value="low">Least beds first</option>
+        </select>
+      </div>
+
+      {loading && <p className="emg3-muted">Loading hospital bed status...</p>}
+
+      {error !== "" && (
+        <div>
+          <p className="emg3-error-text">{error}</p>
+          <button className="emg3-btn" onClick={loadBeds}>Retry</button>
+        </div>
+      )}
+
+      {!loading && error === "" && list.length === 0 && (
+        <p className="emg3-muted">No hospitals found.</p>
+      )}
+
+      {!loading && error === "" && (
         <div className="emg-hospitals-grid">
-          {hospitals.map((h) => {
-            const available = h.available !== undefined ? h.available : (h.beds !== undefined ? h.beds : 0);
-            const total = h.total !== undefined ? h.total : (h.totalBeds !== undefined ? h.totalBeds : 20);
+          {list.map((h) => {
+            const available = beds(h);
+            const total = h.total !== undefined ? h.total : h.totalBeds !== undefined ? h.totalBeds : 20;
             const pct = Math.round((available / total) * 100);
             const isLow = available <= 3;
 
@@ -138,7 +207,56 @@ export default function EmergencyPage({ username }) {
         </div>
       )}
 
-      <h3 className="emg-section-title" style={{ marginTop: "32px" }}>
+    
+      <h3 className="emg-section-title" style={{ marginTop: "36px" }}>
+        👨‍👩‍👧 My Emergency Contacts
+      </h3>
+
+      <div className="emg3-two">
+        {/* Form */}
+        <div className="emg3-card">
+          <h4>Add a contact</h4>
+          <form className="emg3-form" onSubmit={addContact} noValidate>
+            <InputField
+              label="Full name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              error={errors.name}
+              placeholder="e.g. Rahul Sharma"
+            />
+            <InputField
+              label="Mobile number"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              error={errors.phone}
+              placeholder="9876543210"
+            />
+            <button type="submit" className="emg3-btn">Save Contact</button>
+          </form>
+        </div>
+
+    
+        <div className="emg3-card">
+          <h4>Saved contacts ({myContacts.length})</h4>
+          {myContacts.length === 0 && <p className="emg3-muted">No contacts added yet.</p>}
+          {myContacts.map((c) => (
+            <div key={c.id} className="emg3-row">
+              <div>
+                <strong>{c.name}</strong>
+                <small>{c.phone}</small>
+              </div>
+              <button className="emg3-btn emg3-btn-red" onClick={() => deleteContact(c.id)}>
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+
+      <h3 className="emg-section-title" style={{ marginTop: "36px" }}>
         📞 Emergency Hotlines & Rescue Numbers
       </h3>
       <div className="emg-contacts-grid">
@@ -150,6 +268,10 @@ export default function EmergencyPage({ username }) {
           </a>
         ))}
       </div>
+
+      {message.text !== "" && (
+        <div className={message.bad ? "emg3-toast bad" : "emg3-toast"}>{message.text}</div>
+      )}
     </div>
   );
 }

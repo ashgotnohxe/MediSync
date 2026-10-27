@@ -1,10 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { UserProvider } from "./context/UserContext.jsx";
 import App from "./App.jsx";
 import "./App.css";
 
+// ==========================================================
+// VIVA TOPIC: Application Root Setup
+// - BrowserRouter: React Router context for client-side navigation
+// - UserProvider: React Context API provider for sharing patient state
+// ==========================================================
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <UserProvider>
+        <App />
+      </UserProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
