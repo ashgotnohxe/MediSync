@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTheme } from "../context/ThemeContext";
 import { loadData, saveData, QUEUE_SEED } from "../mock-storage";
 import DoctorPatientsPage from "./DoctorPatientsPage";
 import DoctorBedsPage from "./DoctorBedsPage";
@@ -160,7 +161,17 @@ export default function DoctorApp({ doctorName, onLogout }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === "dark" ? "Light" : "Dark"} mode`}
+            aria-label={`Toggle theme (currently ${theme})`}
+          >
+            <span className="theme-toggle-icon">{theme === "dark" ? "☀️" : "🌙"}</span>
+            <span className="theme-toggle-label">{theme === "dark" ? "Light" : "Dark"}</span>
+          </button>
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--theme-text-secondary, #334155)" }}>
             🧑‍⚕️ {doctorName || "Dr. Staff"}
           </span>
           <button className="app-nav-logout" onClick={onLogout}>

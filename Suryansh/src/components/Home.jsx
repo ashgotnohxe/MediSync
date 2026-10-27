@@ -1,6 +1,9 @@
 import React from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Home({ onGetStarted }) {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="home-page">
       <div className="home-nav">
@@ -8,9 +11,21 @@ export default function Home({ onGetStarted }) {
           <div className="home-logo-icon">+</div>
           <span className="home-logo-text">MediSync</span>
         </div>
-        <button className="home-signin" onClick={onGetStarted}>
-          Sign In / Portal
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === "dark" ? "Light" : "Dark"} mode`}
+            aria-label={`Toggle theme (currently ${theme})`}
+          >
+            <span className="theme-toggle-icon">{theme === "dark" ? "☀️" : "🌙"}</span>
+            <span className="theme-toggle-label">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+          <button className="home-signin" onClick={onGetStarted}>
+            Sign In / Portal
+          </button>
+        </div>
       </div>
 
       <div className="home-hero">
